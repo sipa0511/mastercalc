@@ -1,0 +1,3765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MasterCalc PRO v7.3</title>
+    
+    <!-- Встроенный PWA Manifest -->
+    <script type="application/manifest+json">
+    {
+        "name": "MasterCalc PRO",
+        "short_name": "MasterCalc",
+        "description": "Инженерный калькулятор для электриков, КИПовцев, монтажников",
+        "start_url": "./",
+        "display": "standalone",
+        "background_color": "#121212",
+        "theme_color": "#ff9800",
+        "orientation": "portrait",
+        "scope": "./",
+        "icons": [
+            {
+                "src": "icon.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "icon.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    }
+    </script>
+    
+    <!-- Иконки -->
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ff9800" id="themeColorMeta">
+    
+    <!-- iOS Safari PWA мета-теги -->
+    <meta name="apple-mobile-web-app-title" content="MasterCalc">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#ff9800">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <style>
+        /* CSS переменные для тем */
+        :root {
+            --primary-color: #ff9800;
+            --primary-dark: #f57c00;
+            --primary-light: #ffb74d;
+            --bg-color: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #252525;
+            --text-color: #ffffff;
+            --text-secondary: #bbbbbb;
+            --text-disabled: #666666;
+            --border-color: #333333;
+            --success-color: #2e7d32;
+            --success-light: #4caf50;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --transition-speed: 0.3s;
+            --border-radius: 16px;
+        }
+        
+        .theme-light {
+            --bg-color: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f0f0;
+            --text-color: #000000;
+            --text-secondary: #444444;
+            --text-disabled: #888888;
+            --border-color: #dddddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* ФИКС ДЛЯ ГОРИЗОНТАЛЬНОГО СКРОЛЛА */
+        * {
+            -webkit-tap-highlight-color: rgba(255,152,0,0.3);
+            touch-action: manipulation;
+            transition: background-color var(--transition-speed) ease,
+                        color var(--transition-speed) ease,
+                        border-color var(--transition-speed) ease;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body {
+            font-family: -apple-system, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding-bottom: 60px;
+            transition: background-color var(--transition-speed) ease;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            width: 100vw;
+        }
+        
+        /* iOS Safari fixes */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 80px;
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: calc(60px + env(safe-area-inset-bottom));
+                min-height: -webkit-fill-available;
+            }
+            
+            .screen {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+            }
+            
+            header {
+                padding-left: max(15px, env(safe-area-inset-left));
+                padding-right: max(15px, env(safe-area-inset-right));
+                padding-top: max(15px, env(safe-area-inset-top));
+            }
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .screen {
+            display: none;
+            padding: 15px;
+            animation: fadeIn 0.3s ease-out;
+            width: 100%;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .tile, .btn, .menu-item, .acc-header {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+        
+        .tile:active, .btn:active, .menu-item:active {
+            transform: scale(0.96);
+        }
+        
+        .result {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .acc-content {
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        /* Шапка */
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+        
+        .header-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #000000;
+            -webkit-user-select: none;
+            user-select: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: #000000;
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            min-width: 44px;
+            min-height: 44px;
+            flex-shrink: 0;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #000000;
+            font-size: 1.8rem;
+            padding: 10px;
+            cursor: pointer;
+            min-width: 44px;
+            min-height: 44px;
+            flex-shrink: 0;
+        }
+        
+        /* Основные элементы */
+        .intro {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+        
+        .intro b {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .intro p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            word-wrap: break-word;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        
+        .tile {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 22px 5px;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            overflow: hidden;
+            word-break: break-word;
+            min-width: 0;
+        }
+        
+        .tile:active {
+            background: var(--bg-tertiary);
+        }
+        
+        .tile-icon {
+            display: block;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Аккордеоны */
+        .acc-item {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            animation: fadeIn 0.4s ease-out;
+            width: 100%;
+        }
+        
+        .acc-header {
+            padding: 18px;
+            background: var(--bg-tertiary);
+            color: var(--primary-color);
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            min-width: 0;
+        }
+        
+        .acc-content {
+            padding: 18px;
+            display: none;
+            width: 100%;
+        }
+        
+        .acc-item.open .acc-content {
+            display: block;
+        }
+        
+        /* Формы */
+        label {
+            display: block;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            margin-top: 5px;
+            background: var(--text-color);
+            border: 1px solid var(--border-color);
+            color: var(--bg-color);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            max-width: 100%;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+            animation: pulse 0.3s ease;
+        }
+        
+        /* Кнопки */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin-top: 15px;
+            background: var(--primary-color);
+            color: #000000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+        
+        .btn:active {
+            background: var(--primary-dark);
+        }
+        
+        /* Результаты */
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--success-color);
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none;
+            border: 1px solid var(--success-light);
+            animation: scaleIn 0.3s ease-out;
+            width: 100%;
+            word-break: break-word;
+        }
+        
+        .hint {
+            background: var(--bg-tertiary);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-disabled);
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+        
+        /* Подсказки и пояснения */
+        .tool-tip {
+            background: var(--primary-color);
+            color: #000000;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            font-weight: bold;
+            word-break: break-word;
+        }
+        
+        .info-box {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-color);
+            width: 100%;
+            word-break: break-word;
+        }
+        
+        /* Навигация */
+        .back-btn {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        /* Таблицы */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed;
+        }
+        
+        td, th {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border-color);
+            word-break: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        th {
+            background: var(--bg-tertiary);
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        /* Меню бургер */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+            overflow: hidden;
+        }
+        
+        .theme-light .menu-overlay {
+            background: rgba(0,0,0,0.85);
+        }
+        
+        .menu-content {
+            position: absolute;
+            top: 70px;
+            right: 15px;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            min-width: 250px;
+            max-width: calc(100vw - 30px);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            animation: slideIn 0.2s ease-out;
+        }
+        
+        .menu-item {
+            padding: 15px;
+            color: var(--text-color);
+            font-weight: bold;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: var(--bg-tertiary);
+            cursor: pointer;
+            user-select: none;
+            word-break: break-word;
+        }
+        
+        .menu-item:active {
+            background: var(--border-color);
+        }
+        
+        /* Другие элементы */
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            animation: scaleIn 0.5s ease-out;
+            max-width: 100%;
+        }
+        
+        .donate-container {
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .donate-text {
+            color: var(--text-secondary);
+            margin-top: 20px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        
+        /* Избранное */
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-left: 10px;
+            min-width: 44px;
+            min-height: 44px;
+            flex-shrink: 0;
+        }
+        
+        .favorite-btn.active {
+            color: #ffd700;
+            animation: pulse 0.3s ease;
+        }
+        
+        /* Иконки категорий */
+        .category-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        
+        /* Фикс для длинного текста */
+        .acc-header-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            td, th {
+                padding: 8px 5px;
+            }
+        }
+        
+        /* Скрываем спиннеры у number input */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Кастомные селекты */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 30px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 20px;
+        }
+    </style>
+</head>
+<body class="theme-dark">
+
+<!-- ======================= ШАПКА ======================= -->
+<header>
+    <div class="header-title">🛠️ MasterCalc PRO v7.3</div>
+    <div style="display: flex; align-items: center;">
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+        <button class="menu-btn" id="menuButton">☰</button>
+    </div>
+</header>
+
+<!-- ======================= МЕНЮ БУРГЕР ======================= -->
+<div id="menuOverlay" class="menu-overlay">
+    <div class="menu-content">
+        <!-- ИСПРАВЛЕННАЯ СТРОКА -->
+        <div style="background: #ff9800; color: black; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; text-align: center;">
+            📋 Быстрая навигация
+        </div>
+        
+        <div class="menu-item" data-screen="draft">📝 Черновик и заметки</div>
+        <div class="menu-item" data-screen="donate">❤️ Поддержать проект</div>
+        <div class="menu-item" data-screen="reference">📚 Справочные таблицы</div>
+        <div class="menu-item" data-screen="new-calculators">🆕 Новые калькуляторы</div>
+        <div class="menu-item" data-screen="favorites">⭐ Избранное</div>
+        <div class="menu-item" data-screen="history">📊 История расчетов</div>
+        <div class="menu-item" id="closeMenuBtn">✕ Закрыть меню</div>
+    </div>
+</div>
+
+<!-- ======================= ГЛАВНОЕ МЕНЮ ======================= -->
+<div id="menu" class="screen active">
+    <div class="intro">
+        <b>Инженерный помощник</b>
+        <p>Инженерный калькулятор для электриков, КИПовцев, монтажников</p>
+    </div>
+    
+    <div class="info-box">
+        <span class="category-icon">💡</span>
+        <b>Как пользоваться:</b> Выберите категорию → откройте нужный калькулятор → введите данные → получите результат
+    </div>
+    
+    <div class="grid">
+        <div class="tile" data-screen="elec">
+            <span class="tile-icon">⚡</span>
+            ЭЛЕКТРИКА
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Напряжение, ток, мощность</div>
+        </div>
+        
+        <div class="tile" data-screen="kip">
+            <span class="tile-icon">🔧</span>
+            КИПиА
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Давление, температура, расход</div>
+        </div>
+        
+        <div class="tile" data-screen="cable">
+            <span class="tile-icon">🔌</span>
+            КАБЕЛИ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Сечение, падение напряжения</div>
+        </div>
+        
+        <div class="tile" data-screen="new-calculators">
+            <span class="tile-icon">🆕</span>
+            НОВЫЕ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Освещенность, делители</div>
+        </div>
+        
+        <div class="tile" data-screen="len">
+            <span class="tile-icon">📏</span>
+            ДЛИНА
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Конвертация единиц</div>
+        </div>
+        
+        <div class="tile" data-screen="vol">
+            <span class="tile-icon">📦</span>
+            ОБЪЕМ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Конвертация единиц</div>
+        </div>
+        
+        <div class="tile" data-screen="tools">
+            <span class="tile-icon">⚙️</span>
+            ИНСТРУМЕНТЫ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Автоматы, ИБП, резисторы</div>
+        </div>
+        
+        <div class="tile" data-screen="favorites">
+            <span class="tile-icon">⭐</span>
+            ИЗБРАННОЕ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Быстрый доступ</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ЭЛЕКТРИКА ======================= -->
+<div id="elec" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>⚡ ЭЛЕКТРИЧЕСКИЕ РАСЧЕТЫ</b>
+        <p>Расчеты для электриков и электромонтажников</p>
+    </div>
+    
+    <div class="info-box">
+        <span class="category-icon">📖</span>
+        <b>Инструкция:</b> Выберите нужный калькулятор → введите значения → нажмите "РАССЧИТАТЬ"
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">⚡ Закон Ома (U = I × R)</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет напряжения, тока или сопротивления</div>
+            
+            <div class="tool-tip">💡 Пояснение: Используйте для расчета одного из параметров при известных двух других</div>
+            
+            <label>Что нужно рассчитать:</label>
+            <select id="ohm-what">
+                <option value="voltage">Напряжение (U)</option>
+                <option value="current">Ток (I)</option>
+                <option value="resistance">Сопротивление (R)</option>
+            </select>
+            
+            <div id="ohm-inputs">
+                <label>Ток (I), А:</label>
+                <input type="number" id="ohm-current" placeholder="Например: 5">
+                
+                <label>Сопротивление (R), Ом:</label>
+                <input type="number" id="ohm-resistance" placeholder="Например: 44">
+            </div>
+            
+            <button class="btn" id="calcOhmBtn">РАССЧИТАТЬ</button>
+            <div id="res-ohm" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">💡 Мощность (P = U × I)</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет электрической мощности</div>
+            
+            <div class="tool-tip">💡 Пояснение: Мощность = Напряжение × Ток</div>
+            
+            <label>Напряжение (U), В:</label>
+            <input type="number" id="power-voltage" placeholder="Например: 220">
+            
+            <label>Ток (I), А:</label>
+            <input type="number" id="power-current" placeholder="Например: 5">
+            
+            <button class="btn" id="calcPowerBtn">РАССЧИТАТЬ МОЩНОСТЬ</button>
+            <div id="res-power" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">🔄 Конвертер единиц</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Конвертация электрических единиц</div>
+            
+            <div class="tool-tip">💡 Пояснение: Преобразование между различными единицами измерения</div>
+            
+            <label>Тип конвертации:</label>
+            <select id="elec-convert-type">
+                <option value="voltage">Напряжение (В ↔ кВ ↔ мВ)</option>
+                <option value="current">Ток (А ↔ мА)</option>
+                <option value="resistance">Сопротивление (Ом ↔ кОм)</option>
+                <option value="power">Мощность (Вт ↔ кВт)</option>
+            </select>
+            
+            <label>Из:</label>
+            <select id="elec-from-unit">
+                <option value="V">Вольты (В)</option>
+                <option value="kV">Киловольты (кВ)</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="elec-to-unit">
+                <option value="kV">Киловольты (кВ)</option>
+                <option value="V">Вольты (В)</option>
+            </select>
+            
+            <label>Значение:</label>
+            <input type="number" id="elec-convert-value" placeholder="Например: 220">
+            
+            <button class="btn" id="calcElecConvertBtn">КОНВЕРТИРОВАТЬ</button>
+            <div id="res-elec-convert" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">🧲 Делитель напряжения</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет делителя на резисторах</div>
+            
+            <div class="tool-tip">💡 Пояснение: Uвых = Uвх × (R2 / (R1 + R2))</div>
+            
+            <label>Входное напряжение (Uвх), В:</label>
+            <input type="number" id="divider-voltage" placeholder="Например: 12">
+            
+            <label>Сопротивление R1, Ом:</label>
+            <input type="number" id="divider-r1" placeholder="Например: 1000">
+            
+            <label>Сопротивление R2, Ом:</label>
+            <input type="number" id="divider-r2" placeholder="Например: 2000">
+            
+            <button class="btn" id="calcDividerBtn">РАССЧИТАТЬ</button>
+            <div id="res-divider" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Таблица мощностей</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Напряжение</th><th>Ток, А</th><th>Мощность, Вт</th><th>Применение</th></tr>
+                <tr><td>220В</td><td>1</td><td>220</td><td>Маленькая лампа</td></tr>
+                <tr><td>220В</td><td>5</td><td>1100</td><td>Чайник</td></tr>
+                <tr><td>220В</td><td>10</td><td>2200</td><td>Обогреватель</td></tr>
+                <tr><td>220В</td><td>16</td><td>3520</td><td>Духовка</td></tr>
+                <tr><td>380В</td><td>10</td><td>3800</td><td>Двигатель</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= КИПиА ======================= -->
+<div id="kip" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>🔧 КИПиА (Контрольно-Измерительные Приборы)</b>
+        <p>Расчеты для контрольно-измерительных приборов</p>
+    </div>
+    
+    <div class="info-box">
+        <span class="category-icon">📖</span>
+        <b>Инструкция:</b> Используется для расчетов давления, температуры, расхода жидкостей и газов
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">📊 Давление</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Конвертация единиц давления</div>
+            
+            <div class="tool-tip">💡 Пояснение: 1 бар = 0.1 МПа = 1.0197 кгс/см²</div>
+            
+            <label>Из:</label>
+            <select id="pressure-from">
+                <option value="bar">бар</option>
+                <option value="mpa">МПа</option>
+                <option value="kgf">кгс/см²</option>
+                <option value="atm">атм</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="pressure-to">
+                <option value="mpa">МПа</option>
+                <option value="bar">бар</option>
+                <option value="kgf">кгс/см²</option>
+                <option value="atm">атм</option>
+            </select>
+            
+            <label>Значение:</label>
+            <input type="number" id="pressure-value" placeholder="Например: 10">
+            
+            <button class="btn" id="calcPressureBtn">РАССЧИТАТЬ</button>
+            <div id="res-pressure" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">🌡️ Температура</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Конвертация температурных шкал</div>
+            
+            <div class="tool-tip">💡 Пояснение: °C → °F: (×9/5)+32 | °F → °C: (-32)×5/9</div>
+            
+            <label>Из:</label>
+            <select id="temp-from">
+                <option value="c">Градусы Цельсия (°C)</option>
+                <option value="f">Градусы Фаренгейта (°F)</option>
+                <option value="k">Кельвины (K)</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="temp-to">
+                <option value="f">Градусы Фаренгейта (°F)</option>
+                <option value="c">Градусы Цельсия (°C)</option>
+                <option value="k">Кельвины (K)</option>
+            </select>
+            
+            <label>Температура:</label>
+            <input type="number" id="temp-value" placeholder="Например: 20">
+            
+            <button class="btn" id="calcTempBtn">КОНВЕРТИРОВАТЬ</button>
+            <div id="res-temp" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">💧 Расход жидкости/газа</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет расхода среды</div>
+            
+            <div class="tool-tip">💡 Пояснение: 1 м³/ч = 1000 л/ч = 0.2778 л/с</div>
+            
+            <label>Из:</label>
+            <select id="flow-from">
+                <option value="m3h">м³/ч</option>
+                <option value="lmin">л/мин</option>
+                <option value="ls">л/с</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="flow-to">
+                <option value="lmin">л/мин</option>
+                <option value="m3h">м³/ч</option>
+                <option value="ls">л/с</option>
+            </select>
+            
+            <label>Расход:</label>
+            <input type="number" id="flow-value" placeholder="Например: 10">
+            
+            <button class="btn" id="calcFlowBtn">РАССЧИТАТЬ</button>
+            <div id="res-flow" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📏 Уровень жидкости</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет давления по уровню жидкости</div>
+            
+            <div class="tool-tip">💡 Пояснение: P = ρ × g × h (давление = плотность × ускорение × высота)</div>
+            
+            <label>Высота столба жидкости, мм:</label>
+            <input type="number" id="level-height" placeholder="Например: 1000">
+            
+            <label>Плотность жидкости:</label>
+            <select id="level-density">
+                <option value="1000">Вода (1000 кг/м³)</option>
+                <option value="800">Масло (~800 кг/м³)</option>
+                <option value="13600">Ртуть (13600 кг/м³)</option>
+                <option value="custom">Своя плотность</option>
+            </select>
+            
+            <div id="custom-density" style="display:none;">
+                <label>Своя плотность (кг/м³):</label>
+                <input type="number" id="level-custom-density" placeholder="Например: 850">
+            </div>
+            
+            <button class="btn" id="calcLevelBtn">РАССЧИТАТЬ ДАВЛЕНИЕ</button>
+            <div id="res-level" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Справочная таблица</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Единица</th><th>Значение в барах</th><th>Применение</th></tr>
+                <tr><td>1 бар</td><td>1.0</td><td>Техническая атмосфера</td></tr>
+                <tr><td>1 МПа</td><td>10.0</td><td>Мегапаскаль</td></tr>
+                <tr><td>1 кгс/см²</td><td>0.98</td><td>Техническая система</td></tr>
+                <tr><td>1 атм</td><td>1.013</td><td>Физическая атмосфера</td></tr>
+                <tr><td>1 psi</td><td>0.069</td><td>Фунт на кв. дюйм</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= КАБЕЛИ ======================= -->
+<div id="cable" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>🔌 РАСЧЕТ КАБЕЛЕЙ И ПРОВОДОВ</b>
+        <p>Подбор сечения, расчет падения напряжения</p>
+    </div>
+    
+    <div class="info-box">
+        <span class="category-icon">📖</span>
+        <b>Инструкция:</b> Выберите калькулятор → введите параметры кабеля → получите рекомендации
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">📉 Падение напряжения</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет падения напряжения в кабеле</div>
+            
+            <div class="tool-tip">💡 Пояснение: ΔU = (2 × L × I × ρ) / S (для однофазной сети)</div>
+            
+            <label>Ток нагрузки (I), А:</label>
+            <input type="number" id="drop-current" placeholder="Например: 16">
+            
+            <label>Длина линии (L), м:</label>
+            <input type="number" id="drop-length" placeholder="Например: 50">
+            
+            <label>Сечение кабеля (S), мм²:</label>
+            <select id="drop-section">
+                <option value="1.5">1.5 мм²</option>
+                <option value="2.5">2.5 мм²</option>
+                <option value="4">4 мм²</option>
+                <option value="6">6 мм²</option>
+                <option value="10">10 мм²</option>
+                <option value="16">16 мм²</option>
+            </select>
+            
+            <label>Материал проводника:</label>
+            <select id="drop-material">
+                <option value="0.0175">Медь (ρ=0.0175)</option>
+                <option value="0.028">Алюминий (ρ=0.028)</option>
+            </select>
+            
+            <label>Напряжение сети:</label>
+            <select id="drop-voltage">
+                <option value="220">220В (1 фаза)</option>
+                <option value="380">380В (3 фазы)</option>
+            </select>
+            
+            <button class="btn" id="calcDropBtn">РАССЧИТАТЬ ПАДЕНИЕ</button>
+            <div id="res-drop" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📏 Подбор сечения</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Подбор сечения кабеля по току</div>
+            
+            <div class="tool-tip">💡 Пояснение: Выбирается ближайшее большее стандартное сечение</div>
+            
+            <label>Ток нагрузки, А:</label>
+            <input type="number" id="section-current" placeholder="Например: 25">
+            
+            <label>Материал проводника:</label>
+            <select id="section-material">
+                <option value="copper">Медь</option>
+                <option value="aluminum">Алюминий</option>
+            </select>
+            
+            <label>Способ прокладки:</label>
+            <select id="section-install">
+                <option value="open">Открытая</option>
+                <option value="tube">В трубе</option>
+                <option value="hidden">Скрытая</option>
+            </select>
+            
+            <label>Количество проводников:</label>
+            <select id="section-count">
+                <option value="1">1-2 проводника</option>
+                <option value="3">3-4 проводника</option>
+                <option value="5">5-6 проводников</option>
+            </select>
+            
+            <button class="btn" id="calcSectionBtn">ПОДОБРАТЬ СЕЧЕНИЕ</button>
+            <div id="res-section" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">⚡ Допустимый ток</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет допустимого тока для кабеля</div>
+            
+            <div class="tool-tip">💡 Пояснение: Максимальный ток, который может длительно выдерживать кабель</div>
+            
+            <label>Сечение кабеля, мм²:</label>
+            <select id="cable-section">
+                <option value="1.5">1.5 мм²</option>
+                <option value="2.5">2.5 мм²</option>
+                <option value="4">4 мм²</option>
+                <option value="6">6 мм²</option>
+                <option value="10">10 мм²</option>
+                <option value="16">16 мм²</option>
+                <option value="25">25 мм²</option>
+            </select>
+            
+            <label>Материал проводника:</label>
+            <select id="cable-material-current">
+                <option value="copper">Медь</option>
+                <option value="aluminum">Алюминий</option>
+            </select>
+            
+            <label>Температура окружающей среды:</label>
+            <select id="cable-temp">
+                <option value="30">30°C</option>
+                <option value="40">40°C</option>
+                <option value="50">50°C</option>
+            </select>
+            
+            <button class="btn" id="calcCableCurrentBtn">РАССЧИТАТЬ ТОК</button>
+            <div id="res-cable-current" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Таблица сечений и токов</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Сечение, мм²</th><th>Медь, А</th><th>Алюминий, А</th><th>Мощность 220В</th></tr>
+                <tr><td>1.5</td><td>19</td><td>15</td><td>4.1 кВт</td></tr>
+                <tr><td>2.5</td><td>27</td><td>21</td><td>5.9 кВт</td></tr>
+                <tr><td>4</td><td>38</td><td>29</td><td>8.3 кВт</td></tr>
+                <tr><td>6</td><td>46</td><td>36</td><td>10.1 кВт</td></tr>
+                <tr><td>10</td><td>68</td><td>50</td><td>15.0 кВт</td></tr>
+                <tr><td>16</td><td>90</td><td>70</td><td>19.8 кВт</td></tr>
+                <tr><td>25</td><td>115</td><td>90</td><td>25.3 кВт</td></tr>
+            </table>
+            <div class="hint">* Значения для открытой прокладки при +30°C</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= НОВЫЕ КАЛЬКУЛЯТОРЫ ======================= -->
+<div id="new-calculators" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>🆕 НОВЫЕ И ДОПОЛНИТЕЛЬНЫЕ КАЛЬКУЛЯТОРЫ</b>
+        <p>Добавленные по вашим запросам</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">💡 Освещенность</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет освещенности помещения</div>
+            
+            <div class="tool-tip">💡 Пояснение: Нормы освещенности: офис 300-500 лк, цех 200-300 лк</div>
+            
+            <label>Площадь помещения, м²:</label>
+            <input type="number" id="light-area" placeholder="Например: 20">
+            
+            <label>Тип помещения:</label>
+            <select id="light-type">
+                <option value="300">Офис (300 лк)</option>
+                <option value="200">Производство (200 лк)</option>
+                <option value="150">Склад (150 лк)</option>
+                <option value="500">Чертежная (500 лк)</option>
+            </select>
+            
+            <label>Мощность светильника, Вт:</label>
+            <input type="number" id="light-power" placeholder="Например: 18">
+            
+            <label>Световой поток (лм/Вт):</label>
+            <select id="light-efficiency">
+                <option value="80">Лампа накаливания (10 лм/Вт)</option>
+                <option value="100">Люминесцентная (80 лм/Вт)</option>
+                <option value="120">Светодиодная (100 лм/Вт)</option>
+            </select>
+            
+            <button class="btn" id="calcLightBtn">РАССЧИТАТЬ</button>
+            <div id="res-light" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">🚀 Мощность двигателя</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет мощности электродвигателя</div>
+            
+            <div class="tool-tip">💡 Пояснение: P = √3 × U × I × cosφ × η / 1000 (кВт)</div>
+            
+            <label>Напряжение, В:</label>
+            <select id="motor-voltage">
+                <option value="220">220В (1 фаза)</option>
+                <option value="380">380В (3 фазы)</option>
+                <option value="660">660В</option>
+            </select>
+            
+            <label>Ток, А:</label>
+            <input type="number" id="motor-current" placeholder="Например: 10">
+            
+            <label>Коэффициент мощности (cosφ):</label>
+            <select id="motor-cos">
+                <option value="0.8">0.8 (средний)</option>
+                <option value="0.85">0.85 (хороший)</option>
+                <option value="0.9">0.9 (высокий)</option>
+            </select>
+            
+            <label>КПД двигателя, %:</label>
+            <select id="motor-efficiency">
+                <option value="85">85%</option>
+                <option value="90">90%</option>
+                <option value="92">92%</option>
+                <option value="95">95%</option>
+            </select>
+            
+            <button class="btn" id="calcMotorBtn">РАССЧИТАТЬ МОЩНОСТЬ</button>
+            <div id="res-motor" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">🔥 Тепловая мощность</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет тепловой мощности нагревателя</div>
+            
+            <div class="tool-tip">💡 Пояснение: Q = P × t × 0.86 (ккал) или Q = P × t × 3.6 (кДж)</div>
+            
+            <label>Электрическая мощность, кВт:</label>
+            <input type="number" id="heat-power" placeholder="Например: 2">
+            
+            <label>Время работы, часов:</label>
+            <input type="number" id="heat-time" placeholder="Например: 5">
+            
+            <label>Единицы измерения:</label>
+            <select id="heat-unit">
+                <option value="kcal">Килокалории (ккал)</option>
+                <option value="kj">Килоджоули (кДж)</option>
+                <option value="kwh">Киловатт-часы (кВт·ч)</option>
+            </select>
+            
+            <button class="btn" id="calcHeatBtn">РАССЧИТАТЬ ТЕПЛО</button>
+            <div id="res-heat" class="result"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ДЛИНА ======================= -->
+<div id="len" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>📏 КОНВЕРТЕР ДЛИНЫ</b>
+        <p>Конвертация единиц длины и расстояния</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">📐 Конвертер длины</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Конвертация между метрическими и имперскими единицами</div>
+            
+            <div class="tool-tip">💡 Пояснение: 1 м = 100 см = 1000 мм = 39.37 дюймов</div>
+            
+            <label>Из:</label>
+            <select id="length-from">
+                <option value="m">Метры (м)</option>
+                <option value="cm">Сантиметры (см)</option>
+                <option value="mm">Миллиметры (мм)</option>
+                <option value="km">Километры (км)</option>
+                <option value="inch">Дюймы (in)</option>
+                <option value="feet">Футы (ft)</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="length-to">
+                <option value="cm">Сантиметры (см)</option>
+                <option value="m">Метры (м)</option>
+                <option value="mm">Миллиметры (мм)</option>
+                <option value="km">Километры (км)</option>
+                <option value="inch">Дюймы (in)</option>
+                <option value="feet">Футы (ft)</option>
+            </select>
+            
+            <label>Значение:</label>
+            <input type="number" id="length-value" placeholder="Например: 100">
+            
+            <button class="btn" id="calcLengthBtn">КОНВЕРТИРОВАТЬ</button>
+            <div id="res-length" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Таблица конвертации</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Единица</th><th>В метрах</th><th>В сантиметрах</th><th>В дюймах</th></tr>
+                <tr><td>1 метр</td><td>1.000</td><td>100.00</td><td>39.37</td></tr>
+                <tr><td>1 сантиметр</td><td>0.010</td><td>1.00</td><td>0.3937</td></tr>
+                <tr><td>1 миллиметр</td><td>0.001</td><td>0.10</td><td>0.03937</td></tr>
+                <tr><td>1 километр</td><td>1000.0</td><td>100000</td><td>39370</td></tr>
+                <tr><td>1 дюйм</td><td>0.0254</td><td>2.54</td><td>1.00</td></tr>
+                <tr><td>1 фут</td><td>0.3048</td><td>30.48</td><td>12.00</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ОБЪЕМ ======================= -->
+<div id="vol" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>📦 КОНВЕРТЕР ОБЪЕМА</b>
+        <p>Конвертация единиц объема и емкости</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">🧪 Конвертер объема</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Конвертация между различными единицами объема</div>
+            
+            <div class="tool-tip">💡 Пояснение: 1 м³ = 1000 л = 1 000 000 мл</div>
+            
+            <label>Из:</label>
+            <select id="volume-from">
+                <option value="m3">Кубические метры (м³)</option>
+                <option value="l">Литр</option>
+                <option value="ml">Миллилитр (мл)</option>
+                <option value="cm3">Кубические сантиметры (см³)</option>
+                <option value="gal">Галлоны US (gal)</option>
+            </select>
+            
+            <label>В:</label>
+            <select id="volume-to">
+                <option value="l">Литр (л)</option>
+                <option value="m3">Кубические метры (м³)</option>
+                <option value="ml">Миллилитр (мл)</option>
+                <option value="cm3">Кубические сантиметры (см³)</option>
+                <option value="gal">Галлоны US (gal)</option>
+            </select>
+            
+            <label>Значение:</label>
+            <input type="number" id="volume-value" placeholder="Например: 1000">
+            
+            <button class="btn" id="calcVolumeBtn">КОНВЕРТИРОВАТЬ</button>
+            <div id="res-volume" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Таблица конвертации объема</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Единица</th><th>В литрах</th><th>В м³</th><th>В галлонах US</th></tr>
+                <tr><td>1 литр</td><td>1.000</td><td>0.001</td><td>0.264</td></tr>
+                <tr><td>1 м³</td><td>1000.0</td><td>1.000</td><td>264.17</td></tr>
+                <tr><td>1 миллилитр</td><td>0.001</td><td>0.000001</td><td>0.000264</td></tr>
+                <tr><td>1 галлон US</td><td>3.785</td><td>0.003785</td><td>1.000</td></tr>
+                <tr><td>1 баррель нефти</td><td>158.99</td><td>0.159</td><td>42.00</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ИНСТРУМЕНТЫ ======================= -->
+<div id="tools" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>⚙️ ИНЖЕНЕРНЫЕ ИНСТРУМЕНТЫ</b>
+        <p>Специализированные калькуляторы и утилиты</p>
+    </div>
+    
+    <div class="info-box">
+        <span class="category-icon">📖</span>
+        <b>Инструкция:</b> Выберите инструмент → используйте для расчетов в вашей области
+    </div>
+    
+    <div class="grid">
+        <div class="tile" data-screen="circuit-breakers">
+            <span class="tile-icon">🔌</span>
+            АВТОМАТЫ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Подбор защитных автоматов</div>
+        </div>
+        
+        <div class="tile" data-screen="resistor-codes">
+            <span class="tile-icon">🎨</span>
+            РЕЗИСТОРЫ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Цветовые коды</div>
+        </div>
+        
+        <div class="tile" data-screen="ups-calc">
+            <span class="tile-icon">🔋</span>
+            ИБП/АКБ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет автономии</div>
+        </div>
+        
+        <div class="tile" data-screen="grounding">
+            <span class="tile-icon">⚡</span>
+            ЗАЗЕМЛЕНИЕ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет сопротивления</div>
+        </div>
+        
+        <div class="tile" data-screen="busbars">
+            <span class="tile-icon">📏</span>
+            ШИНЫ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет шинопроводов</div>
+        </div>
+        
+        <div class="tile" data-screen="templates">
+            <span class="tile-icon">📋</span>
+            ШАБЛОНЫ
+            <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Сохранение расчетов</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= АВТОМАТИЧЕСКИЕ ВЫКЛЮЧАТЕЛИ ======================= -->
+<div id="circuit-breakers" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>🔌 ПОДБОР АВТОМАТИЧЕСКИХ ВЫКЛЮЧАТЕЛЕЙ</b>
+        <p>Расчет и подбор защитных автоматов</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Калькулятор подбора автомата</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет номинала автомата по току нагрузки</div>
+            
+            <div class="tool-tip">💡 Пояснение: Номинал автомата должен быть на 10-20% больше тока нагрузки</div>
+            
+            <label>Ток нагрузки, А:</label>
+            <input type="number" id="breaker-current" placeholder="Например: 16">
+            
+            <label>Тип нагрузки:</label>
+            <select id="breaker-load-type">
+                <option value="resistive">Активная (лампы, нагреватели)</option>
+                <option value="inductive">Индуктивная (двигатели)</option>
+                <option value="mixed">Смешанная</option>
+            </select>
+            
+            <label>Характеристика срабатывания:</label>
+            <select id="breaker-characteristic">
+                <option value="B">B (3-5×Iн) - Освещение, розетки</option>
+                <option value="C">C (5-10×Iн) - Двигатели, трансформаторы</option>
+                <option value="D">D (10-20×Iн) - Промышленность</option>
+            </select>
+            
+            <label>Температура окружающей среды:</label>
+            <select id="breaker-temperature">
+                <option value="30">30°C (стандартная)</option>
+                <option value="40">40°C (жарко)</option>
+                <option value="50">50°C (очень жарко)</option>
+            </select>
+            
+            <button class="btn" id="calcBreakerBtn">ПОДОБРАТЬ АВТОМАТ</button>
+            <div id="res-breaker" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Стандартные номиналы автоматов</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Номинал</th><th>Нагрузка (220В)</th><th>Применение</th></tr>
+                <tr><td>6А</td><td>1.3 кВт</td><td>Освещение</td></tr>
+                <tr><td>10А</td><td>2.2 кВт</td><td>Розетки</td></tr>
+                <tr><td>16А</td><td>3.5 кВт</td><td>Розетки, кондиционеры</td></tr>
+                <tr><td>20А</td><td>4.4 кВт</td><td>Электроплиты</td></tr>
+                <tr><td>25А</td><td>5.5 кВт</td><td>Вводные</td></tr>
+                <tr><td>32А</td><td>7.0 кВт</td><td>Вводные, котлы</td></tr>
+                <tr><td>40А</td><td>8.8 кВт</td><td>Вводные линии</td></tr>
+                <tr><td>50А</td><td>11.0 кВт</td><td>Большие нагрузки</td></tr>
+                <tr><td>63А</td><td>13.9 кВт</td><td>Промышленность</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ЦВЕТОВЫЕ КОДЫ РЕЗИСТОРОВ ======================= -->
+<div id="resistor-codes" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>🎨 ЦВЕТОВЫЕ КОДЫ РЕЗИСТОРОВ</b>
+        <p>Определение номинала по цветным полосам</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">4-полосный резистор</div>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Наиболее распространенный тип маркировки</div>
+            
+            <div class="tool-tip">💡 Пояснение: 1-я и 2-я полосы - цифры, 3-я - множитель, 4-я - точность</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: var(--bg-tertiary); padding: 20px; border-radius: 10px; overflow: hidden;">
+                <div class="resistor-band" style="background: #964B00; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                <div class="resistor-band" style="background: #000000; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                <div class="resistor-band" style="background: #FF0000; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                <div class="resistor-band" style="background: #FFD700; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+            </div>
+            
+            <label>Первая полоса (1 цифра):</label>
+            <select id="band1">
+                <option value="0" style="background: #000; color: white;">0 - Черный</option>
+                <option value="1" style="background: #964B00; color: white;" selected>1 - Коричневый</option>
+                <option value="2" style="background: #FF0000; color: white;">2 - Красный</option>
+                <option value="3" style="background: #FFA500; color: black;">3 - Оранжевый</option>
+                <option value="4" style="background: #FFFF00; color: black;">4 - Желтый</option>
+                <option value="5" style="background: #008000; color: white;">5 - Зеленый</option>
+                <option value="6" style="background: #0000FF; color: white;">6 - Синий</option>
+                <option value="7" style="background: #800080; color: white;">7 - Фиолетовый</option>
+                <option value="8" style="background: #808080; color: white;">8 - Серый</option>
+                <option value="9" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">9 - Белый</option>
+            </select>
+            
+            <label>Вторая полоса (2 цифра):</label>
+            <select id="band2">
+                <option value="0" style="background: #000; color: white;" selected>0 - Черный</option>
+                <option value="1" style="background: #964B00; color: white;">1 - Коричневый</option>
+                <option value="2" style="background: #FF0000; color: white;">2 - Красный</option>
+                <option value="3" style="background: #FFA500; color: black;">3 - Оранжевый</option>
+                <option value="4" style="background: #FFFF00; color: black;">4 - Желтый</option>
+                <option value="5" style="background: #008000; color: white;">5 - Зеленый</option>
+                <option value="6" style="background: #0000FF; color: white;">6 - Синий</option>
+                <option value="7" style="background: #800080; color: white;">7 - Фиолетовый</option>
+                <option value="8" style="background: #808080; color: white;">8 - Серый</option>
+                <option value="9" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">9 - Белый</option>
+            </select>
+            
+            <label>Третья полоса (множитель):</label>
+            <select id="band3">
+                <option value="1" style="background: #000; color: white;">×1 - Черный</option>
+                <option value="10" style="background: #964B00; color: white;">×10 - Коричневый</option>
+                <option value="100" style="background: #FF0000; color: white;" selected>×100 - Красный</option>
+                <option value="1000" style="background: #FFA500; color: black;">×1k - Оранжевый</option>
+                <option value="10000" style="background: #FFFF00; color: black;">×10k - Желтый</option>
+                <option value="100000" style="background: #008000; color: white;">×100k - Зеленый</option>
+                <option value="1000000" style="background: #0000FF; color: white;">×1M - Синий</option>
+                <option value="10000000" style="background: #800080; color: white;">×10M - Фиолетовый</option>
+                <option value="0.1" style="background: #808080; color: white;">×0.1 - Серый</option>
+                <option value="0.01" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">×0.01 - Белый</option>
+            </select>
+            
+            <label>Четвертая полоса (точность):</label>
+            <select id="band4">
+                <option value="1" style="background: #964B00; color: white;">±1% - Коричневый</option>
+                <option value="2" style="background: #FF0000; color: white;">±2% - Красный</option>
+                <option value="0.5" style="background: #008000; color: white;">±0.5% - Зеленый</option>
+                <option value="0.25" style="background: #0000FF; color: white;">±0.25% - Синий</option>
+                <option value="0.1" style="background: #800080; color: white;">±0.1% - Фиолетовый</option>
+                <option value="5" style="background: #FFD700; color: black;" selected>±5% - Золотой</option>
+                <option value="10" style="background: #C0C0C0; color: black;">±10% - Серебряный</option>
+            </select>
+            
+            <button class="btn" id="calcResistorBtn">РАССЧИТАТЬ НОМИНАЛ</button>
+            <div id="res-resistor" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Таблица цветовых кодов</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Цвет</th><th>Цифра</th><th>Множитель</th><th>Точность</th></tr>
+                <tr><td style="background:#000;color:white;">Черный</td><td>0</td><td>×1</td><td>-</td></tr>
+                <tr><td style="background:#964B00;color:white;">Коричневый</td><td>1</td><td>×10</td><td>±1%</td></tr>
+                <tr><td style="background:#FF0000;color:white;">Красный</td><td>2</td><td>×100</td><td>±2%</td></tr>
+                <tr><td style="background:#FFA500;color:black;">Оранжевый</td><td>3</td><td>×1k</td><td>-</td></tr>
+                <tr><td style="background:#FFFF00;color:black;">Желтый</td><td>4</td><td>×10k</td><td>-</td></tr>
+                <tr><td style="background:#008000;color:white;">Зеленый</td><td>5</td><td>×100k</td><td>±0.5%</td></tr>
+                <tr><td style="background:#0000FF;color:white;">Синий</td><td>6</td><td>×1M</td><td>±0.25%</td></tr>
+                <tr><td style="background:#800080;color:white;">Фиолетовый</td><td>7</td><td>×10M</td><td>±0.1%</td></tr>
+                <tr><td style="background:#808080;color:white;">Серый</td><td>8</td><td>×0.1</td><td>-</td></tr>
+                <tr><td style="background:#FFF;color:black;border:1px solid #ccc;">Белый</td><td>9</td><td>×0.01</td><td>-</td></tr>
+                <tr><td style="background:#FFD700;color:black;">Золотой</td><td>-</td><td>×0.1</td><td>±5%</td></tr>
+                <tr><td style="background:#C0C0C0;color:black;">Серебряный</td><td>-</td><td>×0.01</td><td>±10%</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ИБП/АКБ ======================= -->
+<div id="ups-calc" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>🔋 РАСЧЕТ ИБП И АККУМУЛЯТОРОВ</b>
+        <p>Расчет времени автономии и емкости АКБ</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Калькулятор автономии</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет времени работы от аккумуляторов</div>
+            
+            <div class="tool-tip">💡 Пояснение: Время = (Емкость × Напряжение × КПД) / Мощность</div>
+            
+            <label>Мощность нагрузки, Вт:</label>
+            <input type="number" id="ups-power" placeholder="Например: 500">
+            
+            <label>Напряжение АКБ, В:</label>
+            <select id="ups-voltage">
+                <option value="12">12В</option>
+                <option value="24">24В</option>
+                <option value="48">48В</option>
+            </select>
+            
+            <label>Емкость АКБ, А·ч:</label>
+            <input type="number" id="ups-capacity" placeholder="Например: 100">
+            
+            <label>Количество АКБ в батарее:</label>
+            <input type="number" id="ups-count" placeholder="Например: 2" value="1">
+            
+            <label>КПД ИБП, %:</label>
+            <select id="ups-efficiency">
+                <option value="85">85% (обычный)</option>
+                <option value="92">92% (хороший)</option>
+                <option value="95">95% (высокий)</option>
+            </select>
+            
+            <label>Глубина разряда, %:</label>
+            <select id="ups-discharge">
+                <option value="50">50% (AGM, гелевые)</option>
+                <option value="70">70% (качественные)</option>
+                <option value="80">80% (литиевые)</option>
+            </select>
+            
+            <button class="btn" id="calcUpsBtn">РАССЧИТАТЬ ВРЕМЯ</button>
+            <div id="res-ups" class="result"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ЗАЗЕМЛЕНИЕ ======================= -->
+<div id="grounding" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>⚡ РАСЧЕТ ЗАЗЕМЛЕНИЯ</b>
+        <p>Расчет сопротивления заземляющих устройств</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Расчет одиночного заземлителя</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Расчет сопротивления вертикального заземлителя</div>
+            
+            <div class="tool-tip">💡 Пояснение: R = (ρ / (2πL)) × ln(4L/d) для стержневого заземлителя</div>
+            
+            <label>Длина заземлителя, м:</label>
+            <input type="number" id="ground-length" placeholder="Например: 2.5" value="2.5">
+            
+            <label>Диаметр заземлителя, мм:</label>
+            <input type="number" id="ground-diameter" placeholder="Например: 16" value="16">
+            
+            <label>Глубина заложения, м:</label>
+            <input type="number" id="ground-depth" placeholder="Например: 0.7" value="0.7">
+            
+            <label>Удельное сопротивление грунта, Ом·м:</label>
+            <select id="ground-soil">
+                <option value="100">100 Ом·м - Чернозем, глина</option>
+                <option value="300" selected>300 Ом·м - Суглинок</option>
+                <option value="500">500 Ом·м - Песок</option>
+                <option value="1000">1000 Ом·м - Каменистый</option>
+            </select>
+            
+            <label>Тип заземлителя:</label>
+            <select id="ground-type">
+                <option value="rod">Стержневой (круглый)</option>
+                <option value="angle">Уголковая сталь</option>
+                <option value="strip">Полоса</option>
+            </select>
+            
+            <button class="btn" id="calcGroundBtn">РАССЧИТАТЬ СОПРОТИВЛЕНИЕ</button>
+            <div id="res-ground" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Нормы сопротивления заземления</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Объект</th><th>Макс. сопротивление</th><th>Нормативный документ</th></tr>
+                <tr><td>Жилые дома (220/380В)</td><td>30 Ом</td><td>ПУЭ 1.7.103</td></tr>
+                <tr><td>Промпредприятия (до 1000В)</td><td>10 Ом</td><td>ПУЭ 1.7.101</td></tr>
+                <tr><td>Подстанции 110 кВ</td><td>0.5 Ом</td><td>ПУЭ 1.7.90</td></tr>
+                <tr><td>Грозозащита</td><td>10 Ом</td><td>РД 34.21.122-87</td></tr>
+                <tr><td>ИТ сеть (медицина)</td><td>2 Ом</td><td>ПУЭ 1.7.104</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ШИНЫ ======================= -->
+<div id="busbars" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>📏 РАСЧЕТ ШИН И ШИНОПРОВОДОВ</b>
+        <p>Подбор шин по току, расчет допустимой нагрузки</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Расчет шины по току</div>
+            <button class="favorite-btn">☆</button>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Подбор медной или алюминиевой шины</div>
+            
+            <div class="tool-tip">💡 Пояснение: Допустимый ток зависит от материала, сечения и расположения шины</div>
+            
+            <label>Ток нагрузки, А:</label>
+            <input type="number" id="busbar-current" placeholder="Например: 1000">
+            
+            <label>Материал шины:</label>
+            <select id="busbar-material">
+                <option value="copper">Медь</option>
+                <option value="aluminum">Алюминий</option>
+            </select>
+            
+            <label>Расположение шин:</label>
+            <select id="busbar-position">
+                <option value="vertical">Вертикально (ребром)</option>
+                <option value="horizontal">Горизонтально (плашмя)</option>
+            </select>
+            
+            <label>Количество шин в фазе:</label>
+            <select id="busbar-count">
+                <option value="1">1 шина</option>
+                <option value="2">2 шины</option>
+                <option value="3">3 шины</option>
+            </select>
+            
+            <label>Температура окружающей среды:</label>
+            <select id="busbar-temp">
+                <option value="25">25°C (нормальная)</option>
+                <option value="35">35°C (повышенная)</option>
+                <option value="45">45°C (высокая)</option>
+            </select>
+            
+            <button class="btn" id="calcBusbarBtn">ПОДОБРАТЬ ШИНУ</button>
+            <div id="res-busbar" class="result"></div>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">📋 Стандартные размеры шин</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Размер, мм</th><th>Площадь, мм²</th><th>Медь, А</th><th>Алюминий, А</th></tr>
+                <tr><td>15×3</td><td>45</td><td>210</td><td>165</td></tr>
+                <tr><td>20×3</td><td>60</td><td>275</td><td>215</td></tr>
+                <tr><td>25×3</td><td>75</td><td>340</td><td>265</td></tr>
+                <tr><td>30×4</td><td>120</td><td>475</td><td>370</td></tr>
+                <tr><td>40×4</td><td>160</td><td>625</td><td>490</td></tr>
+                <tr><td>50×5</td><td>250</td><td>860</td><td>675</td></tr>
+                <tr><td>60×6</td><td>360</td><td>1125</td><td>880</td></tr>
+                <tr><td>80×8</td><td>640</td><td>1680</td><td>1320</td></tr>
+            </table>
+            <div class="hint">* Токи указаны для одиночной шины при +25°C, расположенной вертикально</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ШАБЛОНЫ ======================= -->
+<div id="templates" class="screen">
+    <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+    
+    <div class="intro">
+        <b>📋 ШАБЛОНЫ И СОХРАНЕНИЕ РАСЧЕТОВ</b>
+        <p>Сохранение часто используемых наборов параметров</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Мои шаблоны</div>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Здесь можно сохранять часто используемые расчеты</div>
+            
+            <div id="templates-list">
+                <div class="info-box">
+                    <b>Шаблонов пока нет</b><br>
+                    Чтобы создать шаблон, выполните расчет и нажмите кнопку "СОХРАНИТЬ ШАБЛОН"
+                </div>
+            </div>
+            
+            <button class="btn" id="saveTemplateBtn" style="margin-top: 20px;">💾 СОХРАНИТЬ ТЕКУЩИЙ РАСЧЕТ</button>
+            <button class="btn" id="clearTemplatesBtn" style="background:#333; color:#ff9800; margin-top:10px;">🗑️ ОЧИСТИТЬ ВСЕ ШАБЛОНЫ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ЧЕРНОВИК ======================= -->
+<div id="draft" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>📝 ЧЕРНОВИК И ЗАМЕТКИ</b>
+        <p>Временные записи и быстрые расчеты</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Текстовый редактор</div>
+        </div>
+        <div class="acc-content">
+            <div class="hint">Записывайте формулы, расчеты, заметки</div>
+            
+            <textarea id="draft-text" placeholder="Введите ваши заметки, формулы, расчеты здесь...">Пример: 
+Кабель ВВГнг 3×2.5
+Длина: 25 м
+Ток: 16 А
+ΔU = (2 × 25 × 16 × 0.0175) / 2.5 = 5.6 В (2.55%)
+
+Автомат: 16А C
+Сечение подходит ✅</textarea>
+            
+            <button class="btn" id="saveDraftBtn">💾 СОХРАНИТЬ ЧЕРНОВИК</button>
+            <button class="btn" id="clearDraftBtn" style="background:#333; color:#ff9800; margin-top:10px;">🗑️ ОЧИСТИТЬ ЧЕРНОВИК</button>
+            <div id="res-draft" class="result"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ДОНАТ ======================= -->
+<div id="donate" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>❤️ ПОДДЕРЖАТЬ РАЗРАБОТЧИКА</b>
+        <p>Если приложение помогло вам в работе</p>
+    </div>
+    
+    <div class="donate-container">
+        <div class="hint">Поддержите дальнейшее развитие приложения</div>
+        
+        <!-- ЗДЕСЬ ОРИГИНАЛЬНЫЙ QR КОД -->
+        <img src="donate.png" class="qr-code" alt="QR для доната" onerror="this.style.display='none'">
+        
+        <div class="donate-text">
+            <p><b>Сбербанк:</b> <span style="font-family:monospace;">2202 2061 6763 7706</span></p>
+            <p><b>Тинькофф:</b> <span style="font-family:monospace;">220 7020 9373 4650</span></p>
+            <p><b>Газпром:</b> <span style="font-family:monospace;">2200 0127 7928 0238</span></p>
+            <p><b>Альфа Банк:</b> <span style="font-family:monospace;">2200 1536 9958 9371</span></p>
+            <p style="margin-top:20px;"><i>Спасибо за вашу поддержку! 🙏</i></p>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= СПРАВОЧНИК ======================= -->
+<div id="reference" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>📚 СПРАВОЧНЫЕ ТАБЛИЦЫ И ДАННЫЕ</b>
+        <p>Полезные таблицы для инженеров</p>
+    </div>
+    
+    <div class="acc-item open">
+        <div class="acc-header">
+            <div class="acc-header-text">Таблица сечений кабеля</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Сечение, мм²</th><th>Медь, А</th><th>Алюминий, А</th><th>Мощность 220В</th><th>Мощность 380В</th></tr>
+                <tr><td>1.5</td><td>19</td><td>15</td><td>4.1 кВт</td><td>7.2 кВт</td></tr>
+                <tr><td>2.5</td><td>27</td><td>21</td><td>5.9 кВт</td><td>10.3 кВт</td></tr>
+                <tr><td>4</td><td>38</td><td>29</td><td>8.3 кВт</td><td>14.4 кВт</td></tr>
+                <tr><td>6</td><td>46</td><td>36</td><td>10.1 кВт</td><td>17.5 кВт</td></tr>
+                <tr><td>10</td><td>68</td><td>50</td><td>15.0 кВт</td><td>25.9 кВт</td></tr>
+                <tr><td>16</td><td>90</td><td>70</td><td>19.8 кВт</td><td>34.2 кВт</td></tr>
+                <tr><td>25</td><td>115</td><td>90</td><td>25.3 кВт</td><td>43.8 кВт</td></tr>
+                <tr><td>35</td><td>140</td><td>110</td><td>30.8 кВт</td><td>53.4 кВт</td></tr>
+                <tr><td>50</td><td>175</td><td>135</td><td>38.5 кВт</td><td>66.5 кВт</td></tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">Таблица температур</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>°C</th><th>°F</th><th>K</th><th>Описание</th></tr>
+                <tr><td>-40</td><td>-40</td><td>233.15</td><td>Экстремальный холод</td></tr>
+                <tr><td>0</td><td>32</td><td>273.15</td><td>Температура замерзания воды</td></tr>
+                <tr><td>20</td><td>68</td><td>293.15</td><td>Комнатная температура</td></tr>
+                <tr><td>37</td><td>98.6</td><td>310.15</td><td>Температура тела</td></tr>
+                <tr><td>100</td><td>212</td><td>373.15</td><td>Температура кипения воды</td></tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="acc-item">
+        <div class="acc-header">
+            <div class="acc-header-text">Таблица напряжений</div>
+        </div>
+        <div class="acc-content">
+            <table>
+                <tr><th>Напряжение</th><th>Применение</th><th>Страны</th></tr>
+                <tr><td>110-127В</td><td>Бытовая сеть</td><td>США, Канада, Япония</td></tr>
+                <tr><td>220-240В</td><td>Бытовая сеть</td><td>Россия, Европа, Китай</td></tr>
+                <tr><td>380-400В</td><td>Промышленная 3-фазная</td><td>Россия, Европа</td></tr>
+                <tr><td>480В</td><td>Промышленная 3-фазная</td><td>США</td></tr>
+                <tr><td>600В</td><td>Промышленность</td><td>Канада</td></tr>
+                <tr><td>6-35 кВ</td><td>Распределительные сети</td><td>Все страны</td></tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ИЗБРАННОЕ ======================= -->
+<div id="favorites" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>⭐ ИЗБРАННЫЕ КАЛЬКУЛЯТОРЫ</b>
+        <p>Быстрый доступ к часто используемым расчетам</p>
+    </div>
+    
+    <div id="favorites-list">
+        <div class="info-box">
+            <b>Избранных калькуляторов пока нет</b><br>
+            Нажмите ☆ на любом калькуляторе, чтобы добавить его сюда
+        </div>
+    </div>
+</div>
+
+<!-- ======================= ИСТОРИЯ ======================= -->
+<div id="history" class="screen">
+    <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+    
+    <div class="intro">
+        <b>📊 ИСТОРИЯ РАСЧЕТОВ</b>
+        <p>Последние 20 выполненных расчетов</p>
+    </div>
+    
+    <div id="history-list">
+        <div class="info-box">
+            <b>История расчетов пока пуста</b><br>
+            Здесь будут отображаться ваши последние расчеты
+        </div>
+    </div>
+    
+    <button class="btn" id="clearHistoryBtn" style="background:#333; color:#ff9800; margin-top:20px;">🗑️ ОЧИСТИТЬ ВСЮ ИСТОРИЮ</button>
+</div>
+
+<script>
+// ============================================
+// ОСНОВНЫЕ КОНСТАНТЫ И ПЕРЕМЕННЫЕ
+// ============================================
+const APP_VERSION = "7.3";
+let currentScreen = "menu";
+
+// ============================================
+// ФИКС ДЛЯ ГОРИЗОНТАЛЬНОГО СКРОЛЛА
+// ============================================
+function fixHorizontalScroll() {
+    document.body.style.width = '100vw';
+    document.body.style.overflowX = 'hidden';
+    
+    // Проверяем все элементы
+    document.querySelectorAll('*').forEach(el => {
+        if (el.scrollWidth > el.clientWidth + 5) {
+            el.style.maxWidth = '100%';
+            el.style.overflowX = 'hidden';
+        }
+    });
+    
+    // iOS Safari фикс
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        document.body.style.webkitOverflowScrolling = 'touch';
+        document.body.style.overflow = 'hidden';
+        document.body.style.width = '100%';
+        
+        // Предотвращаем скролл за пределы
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.screen') || e.target.closest('.menu-overlay') || 
+                e.target.closest('textarea') || e.target.closest('input')) {
+                return true;
+            }
+            e.preventDefault();
+        }, { passive: false });
+    }
+}
+
+// ============================================
+// ОСНОВНЫЕ ФУНКЦИИ НАВИГАЦИИ
+// ============================================
+function openScreen(screenId) {
+    console.log(`[${APP_VERSION}] Открываем экран:`, screenId);
+    
+    document.activeElement?.blur();
+    window.scrollTo(0, 0);
+    
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+        screen.style.display = 'none';
+    });
+    
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.style.display = 'block';
+        setTimeout(() => {
+            targetScreen.classList.add('active');
+            setTimeout(fixHorizontalScroll, 100);
+        }, 10);
+        
+        currentScreen = screenId;
+        document.title = `MasterCalc PRO v${APP_VERSION} - ${getScreenTitle(screenId)}`;
+        
+        if (history.pushState) {
+            history.pushState(null, '', `#${screenId}`);
+        }
+    }
+    
+    closeMenu();
+    
+    switch(screenId) {
+        case 'draft':
+            setTimeout(loadDraft, 50);
+            break;
+        case 'favorites':
+            setTimeout(loadFavorites, 50);
+            break;
+        case 'history':
+            setTimeout(loadHistory, 50);
+            break;
+        case 'templates':
+            setTimeout(loadTemplates, 50);
+            break;
+    }
+}
+
+function getScreenTitle(screenId) {
+    const titles = {
+        'menu': 'Главное меню',
+        'elec': 'Электрика',
+        'kip': 'КИПиА',
+        'cable': 'Кабели',
+        'new-calculators': 'Новые калькуляторы',
+        'len': 'Длина',
+        'vol': 'Объем',
+        'tools': 'Инструменты',
+        'circuit-breakers': 'Автоматы',
+        'resistor-codes': 'Резисторы',
+        'ups-calc': 'ИБП/АКБ',
+        'grounding': 'Заземление',
+        'busbars': 'Шины',
+        'templates': 'Шаблоны',
+        'draft': 'Черновик',
+        'donate': 'Поддержка',
+        'reference': 'Справочник',
+        'favorites': 'Избранное',
+        'history': 'История'
+    };
+    return titles[screenId] || 'MasterCalc PRO';
+}
+
+function toggleMenu() {
+    const menu = document.getElementById('menuOverlay');
+    if (menu) {
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        if (menu.style.display === 'block') {
+            fixHorizontalScroll();
+        }
+    }
+}
+
+function closeMenu() {
+    const menu = document.getElementById('menuOverlay');
+    if (menu) {
+        menu.style.display = 'none';
+    }
+}
+
+// ============================================
+// ТЕМНАЯ/СВЕТЛАЯ ТЕМА
+// ============================================
+function initTheme() {
+    const savedTheme = localStorage.getItem('mastercalc_theme') || 'dark';
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (savedTheme === 'light') {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+        themeToggle.textContent = '☀️';
+        document.getElementById('themeColorMeta').content = '#ff9800';
+    } else {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+        themeToggle.textContent = '🌙';
+        document.getElementById('themeColorMeta').content = '#121212';
+    }
+}
+
+function toggleTheme() {
+    const isDark = document.body.classList.contains('theme-dark');
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (isDark) {
+        document.body.classList.remove('theme-dark');
+        document.body.classList.add('theme-light');
+        localStorage.setItem('mastercalc_theme', 'light');
+        themeToggle.textContent = '☀️';
+        document.getElementById('themeColorMeta').content = '#ff9800';
+        showNotification('Светлая тема включена', 'info');
+    } else {
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+        localStorage.setItem('mastercalc_theme', 'dark');
+        themeToggle.textContent = '🌙';
+        document.getElementById('themeColorMeta').content = '#121212';
+        showNotification('Темная тема включена', 'info');
+    }
+}
+
+// ============================================
+// УТИЛИТЫ
+// ============================================
+function showResult(id, text) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.innerHTML = text;
+        element.style.display = 'block';
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 10000);
+    }
+}
+
+function parseNumber(id) {
+    const el = document.getElementById(id);
+    if (!el) return NaN;
+    let value = el.value.replace(',', '.').trim();
+    return parseFloat(value);
+}
+
+function formatNumber(num, decimals = 3) {
+    if (isNaN(num)) return "Некорректное число";
+    const rounded = Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+    return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+function showNotification(message, type = 'success') {
+    const colors = {
+        'success': '#4CAF50',
+        'error': '#F44336',
+        'info': '#2196F3'
+    };
+    
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${colors[type] || colors.success};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out, fadeOut 0.3s ease-out 2.7s forwards;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        text-align: center;
+        max-width: 80%;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// ============================================
+// ИЗБРАННОЕ
+// ============================================
+function loadFavorites() {
+    const favorites = JSON.parse(localStorage.getItem('mastercalc_favorites') || '[]');
+    const list = document.getElementById('favorites-list');
+    
+    if (!list) return;
+    
+    if (favorites.length === 0) {
+        list.innerHTML = `
+            <div class="info-box">
+                <b>Избранных калькуляторов пока нет</b><br>
+                Нажмите ☆ на любом калькуляторе, чтобы добавить его сюда
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    favorites.forEach((fav, index) => {
+        html += `
+            <div class="acc-item">
+                <div class="acc-header">
+                    <div class="acc-header-text">${fav.name}</div>
+                    <button class="favorite-btn active" onclick="removeFavorite(${index})">★</button>
+                </div>
+                <div class="acc-content">
+                    <div class="hint">${fav.description}</div>
+                    <button class="btn" onclick="openScreen('${fav.screen}')">ОТКРЫТЬ КАЛЬКУЛЯТОР</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    list.innerHTML = html;
+}
+
+function addFavorite(id, name, description, screen) {
+    const favorites = JSON.parse(localStorage.getItem('mastercalc_favorites') || '[]');
+    
+    if (!favorites.some(fav => fav.id === id)) {
+        favorites.push({ id, name, description, screen });
+        localStorage.setItem('mastercalc_favorites', JSON.stringify(favorites));
+        showNotification(`"${name}" добавлен в избранное`, 'success');
+    }
+}
+
+function removeFavorite(index) {
+    let favorites = JSON.parse(localStorage.getItem('mastercalc_favorites') || '[]');
+    const removed = favorites[index];
+    favorites.splice(index, 1);
+    localStorage.setItem('mastercalc_favorites', JSON.stringify(favorites));
+    loadFavorites();
+    showNotification(`"${removed.name}" удален из избранного`, 'info');
+}
+
+// ============================================
+// ИСТОРИЯ РАСЧЕТОВ
+// ============================================
+function addHistory(calculation) {
+    let history = JSON.parse(localStorage.getItem('mastercalc_history') || '[]');
+    
+    calculation.timestamp = new Date().toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    calculation.id = Date.now();
+    
+    history.unshift(calculation);
+    
+    if (history.length > 20) {
+        history = history.slice(0, 20);
+    }
+    
+    localStorage.setItem('mastercalc_history', JSON.stringify(history));
+}
+
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('mastercalc_history') || '[]');
+    const list = document.getElementById('history-list');
+    
+    if (!list) return;
+    
+    if (history.length === 0) {
+        list.innerHTML = `
+            <div class="info-box">
+                <b>История расчетов пока пуста</b><br>
+                Здесь будут отображаться ваши последние расчеты
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    history.forEach((item, index) => {
+        html += `
+            <div class="acc-item">
+                <div class="acc-header">
+                    <div class="acc-header-text">${item.name}</div>
+                    <span style="font-size:0.8rem; color:var(--text-secondary); flex-shrink: 0;">${item.timestamp}</span>
+                </div>
+                <div class="acc-content">
+                    <div style="color:var(--text-color); margin-bottom:10px;">${item.description}</div>
+                    <div class="result" style="display:block; font-size:1rem;">${item.result}</div>
+                    <button class="btn" onclick="deleteHistoryItem(${item.id})" style="background:#333; color:#ff9800; margin-top:10px;">
+                        УДАЛИТЬ ИЗ ИСТОРИИ
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    list.innerHTML = html;
+}
+
+function deleteHistoryItem(id) {
+    let history = JSON.parse(localStorage.getItem('mastercalc_history') || '[]');
+    history = history.filter(item => item.id !== id);
+    localStorage.setItem('mastercalc_history', JSON.stringify(history));
+    loadHistory();
+    showNotification('Расчет удален из истории', 'info');
+}
+
+function clearHistory() {
+    if (confirm('Вы уверены, что хотите очистить всю историю расчетов?\nЭто действие нельзя отменить.')) {
+        localStorage.removeItem('mastercalc_history');
+        loadHistory();
+        showNotification('История расчетов очищена', 'info');
+    }
+}
+
+// ============================================
+// ЧЕРНОВИК
+// ============================================
+function loadDraft() {
+    const saved = localStorage.getItem('mastercalc_draft');
+    if (saved) {
+        document.getElementById('draft-text').value = saved;
+    }
+}
+
+function saveDraft() {
+    const text = document.getElementById('draft-text').value;
+    localStorage.setItem('mastercalc_draft', text);
+    showResult('res-draft', '✅ Черновик сохранен');
+    setTimeout(() => {
+        document.getElementById('res-draft').style.display = 'none';
+    }, 2000);
+}
+
+function clearDraft() {
+    if (confirm('Очистить черновик? Это действие нельзя отменить.')) {
+        document.getElementById('draft-text').value = '';
+        localStorage.removeItem('mastercalc_draft');
+        showResult('res-draft', '🗑️ Черновик очищен');
+        setTimeout(() => {
+            document.getElementById('res-draft').style.display = 'none';
+        }, 2000);
+    }
+}
+
+// ============================================
+// ШАБЛОНЫ
+// ============================================
+function loadTemplates() {
+    const templates = JSON.parse(localStorage.getItem('mastercalc_templates') || '[]');
+    const list = document.getElementById('templates-list');
+    
+    if (!list) return;
+    
+    if (templates.length === 0) {
+        list.innerHTML = `
+            <div class="info-box">
+                <b>Шаблонов пока нет</b><br>
+                Чтобы создать шаблон, выполните расчет и нажмите кнопку "СОХРАНИТЬ ШАБЛОН"
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    templates.forEach((template, index) => {
+        html += `
+            <div class="acc-item" style="margin-bottom: 10px;">
+                <div class="acc-header">
+                    <div class="acc-header-text">${template.name}</div>
+                </div>
+                <div class="acc-content">
+                    <div style="color:var(--text-color); margin-bottom:10px;">${template.description}</div>
+                    <div style="background:var(--bg-tertiary); padding:10px; border-radius:5px; margin-bottom:10px;">
+                        ${template.data}
+                    </div>
+                    <button class="btn" onclick="loadTemplateData(${index})">ЗАГРУЗИТЬ</button>
+                    <button class="btn" onclick="deleteTemplate(${index})" style="background:#333; color:#ff9800; margin-top:10px;">
+                        УДАЛИТЬ ШАБЛОН
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    list.innerHTML = html;
+}
+
+function saveTemplate() {
+    const name = prompt('Введите название шаблона:');
+    if (!name || name.trim() === '') {
+        showNotification('Название шаблона не может быть пустым', 'error');
+        return;
+    }
+    
+    const templates = JSON.parse(localStorage.getItem('mastercalc_templates') || '[]');
+    
+    templates.push({
+        name: name.trim(),
+        description: 'Сохраненный расчет',
+        data: 'Данные расчета',
+        timestamp: new Date().toISOString()
+    });
+    
+    localStorage.setItem('mastercalc_templates', JSON.stringify(templates));
+    loadTemplates();
+    showNotification(`Шаблон "${name}" сохранен`, 'success');
+}
+
+function loadTemplateData(index) {
+    const templates = JSON.parse(localStorage.getItem('mastercalc_templates') || '[]');
+    if (templates[index]) {
+        showNotification(`Шаблон "${templates[index].name}" загружен`, 'success');
+    }
+}
+
+function deleteTemplate(index) {
+    if (confirm('Удалить этот шаблон?')) {
+        const templates = JSON.parse(localStorage.getItem('mastercalc_templates') || '[]');
+        const deleted = templates.splice(index, 1);
+        localStorage.setItem('mastercalc_templates', JSON.stringify(templates));
+        loadTemplates();
+        showNotification(`Шаблон "${deleted[0].name}" удален`, 'info');
+    }
+}
+
+function clearTemplates() {
+    if (confirm('Удалить все шаблоны? Это действие нельзя отменить.')) {
+        localStorage.removeItem('mastercalc_templates');
+        loadTemplates();
+        showNotification('Все шаблоны удалены', 'info');
+    }
+}
+
+// ============================================
+// ФУНКЦИИ РАСЧЕТОВ
+// ============================================
+function calcOhm() {
+    const what = document.getElementById('ohm-what').value;
+    let result = '';
+    
+    if (what === 'voltage') {
+        const I = parseNumber('ohm-current');
+        const R = parseNumber('ohm-resistance');
+        
+        if (isNaN(I) || isNaN(R)) {
+            alert('Заполните все поля корректно!');
+            return;
+        }
+        
+        const U = I * R;
+        result = `Напряжение: <b>${formatNumber(U)} В</b><br>I = ${formatNumber(I)} А, R = ${formatNumber(R)} Ом`;
+        
+        addHistory({
+            name: 'Закон Ома (U)',
+            description: `Ток: ${formatNumber(I)} А, Сопротивление: ${formatNumber(R)} Ом`,
+            result: `U = ${formatNumber(U)} В`
+        });
+        
+    } else if (what === 'current') {
+        const U = parseNumber('ohm-current');
+        const R = parseNumber('ohm-resistance');
+        
+        if (isNaN(U) || isNaN(R)) {
+            alert('Заполните все поля корректно!');
+            return;
+        }
+        
+        if (R === 0) {
+            alert('Сопротивление не может быть равно нулю!');
+            return;
+        }
+        
+        const I = U / R;
+        result = `Ток: <b>${formatNumber(I)} А</b><br>U = ${formatNumber(U)} В, R = ${formatNumber(R)} Ом`;
+        
+        addHistory({
+            name: 'Закон Ома (I)',
+            description: `Напряжение: ${formatNumber(U)} В, Сопротивление: ${formatNumber(R)} Ом`,
+            result: `I = ${formatNumber(I)} А`
+        });
+        
+    } else if (what === 'resistance') {
+        const U = parseNumber('ohm-current');
+        const I = parseNumber('ohm-resistance');
+        
+        if (isNaN(U) || isNaN(I)) {
+            alert('Заполните все поля корректно!');
+            return;
+        }
+        
+        if (I === 0) {
+            alert('Ток не может быть равен нулю!');
+            return;
+        }
+        
+        const R = U / I;
+        result = `Сопротивление: <b>${formatNumber(R)} Ом</b><br>U = ${formatNumber(U)} В, I = ${formatNumber(I)} А`;
+        
+        addHistory({
+            name: 'Закон Ома (R)',
+            description: `Напряжение: ${formatNumber(U)} В, Ток: ${formatNumber(I)} А`,
+            result: `R = ${formatNumber(R)} Ом`
+        });
+    }
+    
+    showResult('res-ohm', result);
+}
+
+function calcPower() {
+    const U = parseNumber('power-voltage');
+    const I = parseNumber('power-current');
+    
+    if (isNaN(U) || isNaN(I)) {
+        alert('Заполните все поля корректно!');
+        return;
+    }
+    
+    const P = U * I;
+    const kW = P / 1000;
+    
+    let result = `Мощность: <b>${formatNumber(P)} Вт</b> (${formatNumber(kW)} кВт)<br>`;
+    result += `U = ${formatNumber(U)} В, I = ${formatNumber(I)} А`;
+    
+    showResult('res-power', result);
+    
+    addHistory({
+        name: 'Мощность P=UI',
+        description: `Напряжение: ${formatNumber(U)} В, Ток: ${formatNumber(I)} А`,
+        result: `P = ${formatNumber(P)} Вт (${formatNumber(kW)} кВт)`
+    });
+}
+
+function calcElecConvert() {
+    const type = document.getElementById('elec-convert-type').value;
+    const from = document.getElementById('elec-from-unit').value;
+    const to = document.getElementById('elec-to-unit').value;
+    const value = parseNumber('elec-convert-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    let result = 0;
+    
+    const conversions = {
+        voltage: {
+            V: { kV: 0.001, mV: 1000 },
+            kV: { V: 1000, mV: 1000000 },
+            mV: { V: 0.001, kV: 0.000001 }
+        },
+        current: {
+            A: { mA: 1000 },
+            mA: { A: 0.001 }
+        },
+        resistance: {
+            Ohm: { kOhm: 0.001 },
+            kOhm: { Ohm: 1000 }
+        },
+        power: {
+            W: { kW: 0.001 },
+            kW: { W: 1000 }
+        }
+    };
+    
+    const unitNames = {
+        V: 'Вольт (В)', kV: 'Киловольт (кВ)', mV: 'Милливольт (мВ)',
+        A: 'Ампер (А)', mA: 'Миллиампер (мА)',
+        Ohm: 'Ом', kOhm: 'Килоом (кОм)',
+        W: 'Ватт (Вт)', kW: 'Киловатт (кВт)'
+    };
+    
+    if (conversions[type] && conversions[type][from] && conversions[type][from][to]) {
+        result = value * conversions[type][from][to];
+        const fromName = unitNames[from] || from;
+        const toName = unitNames[to] || to;
+        
+        const resultText = `${formatNumber(value)} ${fromName} = <b>${formatNumber(result)} ${toName}</b>`;
+        showResult('res-elec-convert', resultText);
+        
+        addHistory({
+            name: `Конвертация ${type}`,
+            description: `${formatNumber(value)} ${fromName} → ${toName}`,
+            result: `${formatNumber(result)} ${toName}`
+        });
+    } else {
+        showResult('res-elec-convert', 'Невозможно выполнить конвертацию');
+    }
+}
+
+function calcDivider() {
+    const Uin = parseNumber('divider-voltage');
+    const R1 = parseNumber('divider-r1');
+    const R2 = parseNumber('divider-r2');
+    
+    if (isNaN(Uin) || isNaN(R1) || isNaN(R2)) {
+        alert('Заполните все поля корректно!');
+        return;
+    }
+    
+    if (R1 <= 0 || R2 <= 0) {
+        alert('Сопротивления должны быть больше нуля!');
+        return;
+    }
+    
+    const Uout = Uin * (R2 / (R1 + R2));
+    const I = Uin / (R1 + R2);
+    const P1 = I * I * R1;
+    const P2 = I * I * R2;
+    
+    let result = `Выходное напряжение: <b>${formatNumber(Uout)} В</b><br>`;
+    result += `Ток через делитель: ${formatNumber(I, 3)} А<br>`;
+    result += `Мощность на R1: ${formatNumber(P1)} Вт<br>`;
+    result += `Мощность на R2: ${formatNumber(P2)} Вт<br>`;
+    result += `Коэффициент деления: ${(R2/(R1+R2)).toFixed(3)}`;
+    
+    showResult('res-divider', result);
+    
+    addHistory({
+        name: 'Делитель напряжения',
+        description: `Uвх: ${formatNumber(Uin)} В, R1: ${formatNumber(R1)} Ом, R2: ${formatNumber(R2)} Ом`,
+        result: `Uвых = ${formatNumber(Uout)} В`
+    });
+}
+
+function calcPressure() {
+    const from = document.getElementById('pressure-from').value;
+    const to = document.getElementById('pressure-to').value;
+    const value = parseNumber('pressure-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    const toBar = {
+        bar: 1,
+        mpa: 10,
+        kgf: 0.980665,
+        atm: 1.01325
+    };
+    
+    const fromBar = {
+        bar: 1,
+        mpa: 0.1,
+        kgf: 1.019716,
+        atm: 0.986923
+    };
+    
+    if (toBar[from] && fromBar[to]) {
+        const inBar = value * toBar[from];
+        const result = inBar * fromBar[to];
+        
+        const unitNames = {
+            bar: 'бар',
+            mpa: 'МПа',
+            kgf: 'кгс/см²',
+            atm: 'атм'
+        };
+        
+        const resultText = `${formatNumber(value)} ${unitNames[from]} = <b>${formatNumber(result)} ${unitNames[to]}</b>`;
+        showResult('res-pressure', resultText);
+        
+        addHistory({
+            name: 'Конвертация давления',
+            description: `${formatNumber(value)} ${unitNames[from]} → ${unitNames[to]}`,
+            result: `${formatNumber(result)} ${unitNames[to]}`
+        });
+    }
+}
+
+function calcTemp() {
+    const from = document.getElementById('temp-from').value;
+    const to = document.getElementById('temp-to').value;
+    const value = parseNumber('temp-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    let inCelsius = value;
+    if (from === 'f') inCelsius = (value - 32) * 5/9;
+    if (from === 'k') inCelsius = value - 273.15;
+    
+    let result = inCelsius;
+    if (to === 'f') result = (inCelsius * 9/5) + 32;
+    if (to === 'k') result = inCelsius + 273.15;
+    
+    const unitNames = {
+        c: '°C',
+        f: '°F',
+        k: 'K'
+    };
+    
+    const resultText = `${formatNumber(value)} ${unitNames[from]} = <b>${formatNumber(result)} ${unitNames[to]}</b>`;
+    showResult('res-temp', resultText);
+    
+    addHistory({
+        name: 'Конвертация температуры',
+        description: `${formatNumber(value)} ${unitNames[from]} → ${unitNames[to]}`,
+        result: `${formatNumber(result)} ${unitNames[to]}`
+    });
+}
+
+function calcFlow() {
+    const from = document.getElementById('flow-from').value;
+    const to = document.getElementById('flow-to').value;
+    const value = parseNumber('flow-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    let inM3h = value;
+    if (from === 'lmin') inM3h = value * 0.06;
+    if (from === 'ls') inM3h = value * 3.6;
+    
+    let result = inM3h;
+    if (to === 'lmin') result = inM3h / 0.06;
+    if (to === 'ls') result = inM3h / 3.6;
+    
+    const unitNames = {
+        m3h: 'м³/ч',
+        lmin: 'л/мин',
+        ls: 'л/с'
+    };
+    
+    const resultText = `${formatNumber(value)} ${unitNames[from]} = <b>${formatNumber(result)} ${unitNames[to]}</b>`;
+    showResult('res-flow', resultText);
+    
+    addHistory({
+        name: 'Конвертация расхода',
+        description: `${formatNumber(value)} ${unitNames[from]} → ${unitNames[to]}`,
+        result: `${formatNumber(result)} ${unitNames[to]}`
+    });
+}
+
+function calcLevel() {
+    const height = parseNumber('level-height');
+    const densityType = document.getElementById('level-density').value;
+    
+    if (isNaN(height)) {
+        alert('Введите корректную высоту!');
+        return;
+    }
+    
+    let density = 1000;
+    
+    if (densityType === 'custom') {
+        density = parseNumber('level-custom-density') || 1000;
+    } else {
+        density = parseFloat(densityType);
+    }
+    
+    if (isNaN(density) || density <= 0) {
+        alert('Введите корректную плотность!');
+        return;
+    }
+    
+    const heightM = height / 1000;
+    const g = 9.80665;
+    const pressurePa = density * g * heightM;
+    const pressureBar = pressurePa / 100000;
+    const pressureMmHg = pressurePa / 133.322;
+    
+    let result = `Давление столба жидкости:<br>`;
+    result += `<b>${formatNumber(pressurePa)} Па</b><br>`;
+    result += `<b>${formatNumber(pressureBar)} бар</b><br>`;
+    result += `<b>${formatNumber(pressureMmHg)} мм рт.ст.</b><br>`;
+    result += `Высота: ${height} мм, Плотность: ${density} кг/м³`;
+    
+    showResult('res-level', result);
+    
+    addHistory({
+        name: 'Давление по уровню',
+        description: `Высота: ${height} мм, Плотность: ${density} кг/м³`,
+        result: `${formatNumber(pressureBar)} бар`
+    });
+}
+
+function calcDrop() {
+    const I = parseNumber('drop-current');
+    const L = parseNumber('drop-length');
+    const S = parseNumber('drop-section');
+    const rho = parseNumber('drop-material');
+    const U = parseNumber('drop-voltage');
+    
+    if (isNaN(I) || isNaN(L) || isNaN(S)) {
+        alert('Заполните все обязательные поля!');
+        return;
+    }
+    
+    let dU = 0;
+    let formula = '';
+    
+    if (U === 220) {
+        dU = (2 * L * I * rho) / S;
+        formula = 'ΔU = (2 × L × I × ρ) / S';
+    } else {
+        dU = (1.732 * L * I * rho) / S;
+        formula = 'ΔU = (√3 × L × I × ρ) / S';
+    }
+    
+    const dUpercent = (dU / U) * 100;
+    
+    let result = `Падение напряжения: <b>${formatNumber(dU)} В (${formatNumber(dUpercent, 2)}%)</b><br>`;
+    result += `Формула: ${formula}<br>`;
+    result += `Ток: ${I} А, Длина: ${L} м, Сечение: ${S} мм²<br>`;
+    result += `Материал: ${rho === 0.0175 ? 'Медь' : 'Алюминий'}, Напряжение: ${U} В<br>`;
+    
+    if (dUpercent > 5) {
+        result += '⚠️ <b>Превышено допустимое значение (5%)</b>';
+    } else if (dUpercent > 3) {
+        result += '⚠️ <b>На грани допустимого (3-5%)</b>';
+    } else {
+        result += '✅ <b>В пределах нормы</b>';
+    }
+    
+    showResult('res-drop', result);
+    
+    addHistory({
+        name: 'Падение напряжения',
+        description: `Ток: ${I} А, Длина: ${L} м, Сечение: ${S} мм², ${U} В`,
+        result: `ΔU = ${formatNumber(dU)} В (${formatNumber(dUpercent, 2)}%)`
+    });
+}
+
+function calcSection() {
+    const I = parseNumber('section-current');
+    const material = document.getElementById('section-material').value;
+    const install = document.getElementById('section-install').value;
+    const count = parseInt(document.getElementById('section-count').value);
+    
+    if (isNaN(I)) {
+        alert('Введите ток нагрузки!');
+        return;
+    }
+    
+    const currentTable = {
+        copper: {
+            '1.5': 19, '2.5': 27, '4': 38, '6': 46, '10': 68,
+            '16': 90, '25': 115, '35': 140, '50': 175
+        },
+        aluminum: {
+            '1.5': 15, '2.5': 21, '4': 29, '6': 36, '10': 50,
+            '16': 70, '25': 90, '35': 110, '50': 135
+        }
+    };
+    
+    let kInstall = 1.0;
+    if (install === 'tube') kInstall = 0.8;
+    if (install === 'hidden') kInstall = 0.7;
+    
+    let kCount = 1.0;
+    if (count === 3) kCount = 0.7;
+    if (count === 5) kCount = 0.6;
+    
+    const sections = material === 'copper' ? 
+        ['1.5', '2.5', '4', '6', '10', '16', '25', '35', '50'] :
+        ['1.5', '2.5', '4', '6', '10', '16', '25', '35', '50'];
+    
+    let recommended = '';
+    let recommendedCurrent = 0;
+    
+    for (const section of sections) {
+        const Iallowed = currentTable[material][section] * kInstall * kCount;
+        if (Iallowed >= I) {
+            recommended = section;
+            recommendedCurrent = currentTable[material][section];
+            break;
+        }
+    }
+    
+    if (!recommended) {
+        recommended = '50';
+        recommendedCurrent = currentTable[material]['50'];
+    }
+    
+    const IallowedTotal = recommendedCurrent * kInstall * kCount;
+    const materialName = material === 'copper' ? 'Медь' : 'Алюминий';
+    const installName = install === 'open' ? 'Открытая' : install === 'tube' ? 'В трубе' : 'Скрытая';
+    
+    let result = `Рекомендуемое сечение: <b>${recommended} мм²</b><br>`;
+    result += `Материал: ${materialName}<br>`;
+    result += `Прокладка: ${installName}<br>`;
+    result += `Количество проводников: ${count}<br>`;
+    result += `Допустимый ток: ${formatNumber(IallowedTotal)} А<br>`;
+    result += `Требуемый ток: ${I} А<br>`;
+    
+    if (IallowedTotal >= I) {
+        result += '✅ <b>Сечение подходит</b>';
+    } else {
+        result += '⚠️ <b>Увеличьте сечение или измените условия прокладки</b>';
+    }
+    
+    showResult('res-section', result);
+    
+    addHistory({
+        name: 'Подбор сечения кабеля',
+        description: `Ток: ${I} А, Материал: ${materialName}, Прокладка: ${installName}`,
+        result: `${recommended} мм² (${formatNumber(IallowedTotal)} А)`
+    });
+}
+
+function calcCableCurrent() {
+    const section = document.getElementById('cable-section').value;
+    const material = document.getElementById('cable-material-current').value;
+    const temp = parseInt(document.getElementById('cable-temp').value);
+    
+    if (!section) {
+        alert('Выберите сечение кабеля!');
+        return;
+    }
+    
+    const baseCurrents = {
+        copper: {
+            '1.5': 19, '2.5': 27, '4': 38, '6': 46, '10': 68,
+            '16': 90, '25': 115
+        },
+        aluminum: {
+            '1.5': 15, '2.5': 21, '4': 29, '6': 36, '10': 50,
+            '16': 70, '25': 90
+        }
+    };
+    
+    let kTemp = 1.0;
+    if (temp === 40) kTemp = 0.91;
+    if (temp === 50) kTemp = 0.82;
+    
+    const baseCurrent = baseCurrents[material][section] || 0;
+    const allowedCurrent = baseCurrent * kTemp;
+    
+    const materialName = material === 'copper' ? 'Медь' : 'Алюминий';
+    const power220 = allowedCurrent * 220 / 1000;
+    const power380 = allowedCurrent * 380 * 1.732 / 1000;
+    
+    let result = `Допустимый ток: <b>${formatNumber(allowedCurrent)} А</b><br>`;
+    result += `Сечение: ${section} мм², Материал: ${materialName}<br>`;
+    result += `Температура: ${temp}°C<br>`;
+    result += `Мощность при 220В: ${formatNumber(power220)} кВт<br>`;
+    result += `Мощность при 380В: ${formatNumber(power380)} кВт`;
+    
+    showResult('res-cable-current', result);
+    
+    addHistory({
+        name: 'Допустимый ток кабеля',
+        description: `Сечение: ${section} мм², Материал: ${materialName}, Температура: ${temp}°C`,
+        result: `${formatNumber(allowedCurrent)} А`
+    });
+}
+
+function calcLight() {
+    const area = parseNumber('light-area');
+    const lux = parseInt(document.getElementById('light-type').value);
+    const power = parseNumber('light-power');
+    const efficiency = parseInt(document.getElementById('light-efficiency').value);
+    
+    if (isNaN(area) || isNaN(power)) {
+        alert('Заполните все обязательные поля!');
+        return;
+    }
+    
+    const totalLumen = area * lux;
+    const fixtureLumen = power * efficiency;
+    const fixtures = Math.ceil(totalLumen / fixtureLumen);
+    const totalPower = fixtures * power;
+    const powerPerM2 = totalPower / area;
+    
+    let result = `Количество светильников: <b>${fixtures} шт.</b><br>`;
+    result += `Общая мощность: ${formatNumber(totalPower)} Вт<br>`;
+    result += `Удельная мощность: ${formatNumber(powerPerM2, 1)} Вт/м²<br>`;
+    result += `Площадь: ${area} м², Норма освещенности: ${lux} лк<br>`;
+    result += `Мощность светильника: ${power} Вт, Светоотдача: ${efficiency} лм/Вт`;
+    
+    showResult('res-light', result);
+    
+    addHistory({
+        name: 'Расчет освещенности',
+        description: `Площадь: ${area} м², Норма: ${lux} лк, Светильник: ${power} Вт`,
+        result: `${fixtures} светильников, ${formatNumber(totalPower)} Вт`
+    });
+}
+
+function calcMotor() {
+    const U = parseInt(document.getElementById('motor-voltage').value);
+    const I = parseNumber('motor-current');
+    const cosPhi = parseFloat(document.getElementById('motor-cos').value);
+    const eta = parseInt(document.getElementById('motor-efficiency').value) / 100;
+    
+    if (isNaN(I)) {
+        alert('Введите ток двигателя!');
+        return;
+    }
+    
+    let power = 0;
+    
+    if (U === 220) {
+        power = U * I * cosPhi * eta;
+    } else {
+        power = 1.732 * U * I * cosPhi * eta;
+    }
+    
+    const powerKW = power / 1000;
+    const powerHP = powerKW * 1.35962;
+    
+    let result = `Мощность двигателя:<br>`;
+    result += `<b>${formatNumber(power)} Вт</b><br>`;
+    result += `<b>${formatNumber(powerKW, 2)} кВт</b><br>`;
+    result += `<b>${formatNumber(powerHP, 2)} л.с.</b><br>`;
+    result += `Напряжение: ${U} В, Ток: ${I} А<br>`;
+    result += `cosφ: ${cosPhi}, КПД: ${eta * 100}%`;
+    
+    showResult('res-motor', result);
+    
+    addHistory({
+        name: 'Мощность двигателя',
+        description: `${U} В, ${I} А, cosφ: ${cosPhi}, КПД: ${eta * 100}%`,
+        result: `${formatNumber(powerKW, 2)} кВт (${formatNumber(powerHP, 2)} л.с.)`
+    });
+}
+
+function calcHeat() {
+    const P = parseNumber('heat-power');
+    const t = parseNumber('heat-time');
+    const unit = document.getElementById('heat-unit').value;
+    
+    if (isNaN(P) || isNaN(t)) {
+        alert('Заполните все поля!');
+        return;
+    }
+    
+    const energyKWh = P * t;
+    let resultValue = 0;
+    let unitName = '';
+    
+    switch(unit) {
+        case 'kcal':
+            resultValue = energyKWh * 860;
+            unitName = 'ккал';
+            break;
+        case 'kj':
+            resultValue = energyKWh * 3600;
+            unitName = 'кДж';
+            break;
+        case 'kwh':
+            resultValue = energyKWh;
+            unitName = 'кВт·ч';
+            break;
+    }
+    
+    let result = `Тепловая энергия: <b>${formatNumber(resultValue)} ${unitName}</b><br>`;
+    result += `Мощность: ${P} кВт, Время: ${t} ч<br>`;
+    result += `Общая энергия: ${formatNumber(energyKWh)} кВт·ч`;
+    
+    showResult('res-heat', result);
+    
+    addHistory({
+        name: 'Тепловая энергия',
+        description: `Мощность: ${P} кВт, Время: ${t} ч`,
+        result: `${formatNumber(resultValue)} ${unitName}`
+    });
+}
+
+function calcLength() {
+    const from = document.getElementById('length-from').value;
+    const to = document.getElementById('length-to').value;
+    const value = parseNumber('length-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    let inMeters = value;
+    switch(from) {
+        case 'cm': inMeters = value / 100; break;
+        case 'mm': inMeters = value / 1000; break;
+        case 'km': inMeters = value * 1000; break;
+        case 'inch': inMeters = value * 0.0254; break;
+        case 'feet': inMeters = value * 0.3048; break;
+    }
+    
+    let result = inMeters;
+    switch(to) {
+        case 'cm': result = inMeters * 100; break;
+        case 'mm': result = inMeters * 1000; break;
+        case 'km': result = inMeters / 1000; break;
+        case 'inch': result = inMeters / 0.0254; break;
+        case 'feet': result = inMeters / 0.3048; break;
+    }
+    
+    const unitNames = {
+        m: 'м', cm: 'см', mm: 'мм', km: 'км',
+        inch: 'дюйм', feet: 'фут'
+    };
+    
+    const resultText = `${formatNumber(value)} ${unitNames[from]} = <b>${formatNumber(result)} ${unitNames[to]}</b>`;
+    showResult('res-length', resultText);
+    
+    addHistory({
+        name: 'Конвертация длины',
+        description: `${formatNumber(value)} ${unitNames[from]} → ${unitNames[to]}`,
+        result: `${formatNumber(result)} ${unitNames[to]}`
+    });
+}
+
+function calcVolume() {
+    const from = document.getElementById('volume-from').value;
+    const to = document.getElementById('volume-to').value;
+    const value = parseNumber('volume-value');
+    
+    if (isNaN(value)) {
+        alert('Введите корректное число!');
+        return;
+    }
+    
+    let inLiters = value;
+    switch(from) {
+        case 'm3': inLiters = value * 1000; break;
+        case 'ml': inLiters = value / 1000; break;
+        case 'cm3': inLiters = value / 1000; break;
+        case 'gal': inLiters = value * 3.78541; break;
+    }
+    
+    let result = inLiters;
+    switch(to) {
+        case 'm3': result = inLiters / 1000; break;
+        case 'ml': result = inLiters * 1000; break;
+        case 'cm3': result = inLiters * 1000; break;
+        case 'gal': result = inLiters / 3.78541; break;
+    }
+    
+    const unitNames = {
+        m3: 'м³', l: 'л', ml: 'мл', cm3: 'см³', gal: 'галлонов'
+    };
+    
+    const resultText = `${formatNumber(value)} ${unitNames[from]} = <b>${formatNumber(result)} ${unitNames[to]}</b>`;
+    showResult('res-volume', resultText);
+    
+    addHistory({
+        name: 'Конвертация объема',
+        description: `${formatNumber(value)} ${unitNames[from]} → ${unitNames[to]}`,
+        result: `${formatNumber(result)} ${unitNames[to]}`
+    });
+}
+
+function calcBreaker() {
+    const I = parseNumber('breaker-current');
+    const loadType = document.getElementById('breaker-load-type').value;
+    const characteristic = document.getElementById('breaker-characteristic').value;
+    const temp = parseInt(document.getElementById('breaker-temperature').value);
+    
+    if (isNaN(I)) {
+        alert('Введите ток нагрузки!');
+        return;
+    }
+    
+    let kLoad = 1.0;
+    if (loadType === 'inductive') kLoad = 1.25;
+    if (loadType === 'mixed') kLoad = 1.15;
+    
+    let kTemp = 1.0;
+    if (temp === 40) kTemp = 0.9;
+    if (temp === 50) kTemp = 0.8;
+    
+    const Icalc = I * kLoad * kTemp;
+    
+    const standardBreakers = [6, 10, 16, 20, 25, 32, 40, 50, 63];
+    
+    let recommended = 6;
+    for (const breaker of standardBreakers) {
+        if (breaker >= Icalc) {
+            recommended = breaker;
+            break;
+        }
+    }
+    
+    const charNames = {
+        'B': 'B (3-5×Iн)',
+        'C': 'C (5-10×Iн)',
+        'D': 'D (10-20×Iн)'
+    };
+    
+    const loadNames = {
+        'resistive': 'Активная',
+        'inductive': 'Индуктивная',
+        'mixed': 'Смешанная'
+    };
+    
+    const power220 = recommended * 220 / 1000;
+    const power380 = recommended * 380 * 1.732 / 1000;
+    
+    let result = `Рекомендуемый автомат: <b>${recommended}А ${characteristic}</b><br>`;
+    result += `Расчетный ток: ${formatNumber(Icalc, 1)} А<br>`;
+    result += `Тип нагрузки: ${loadNames[loadType]}<br>`;
+    result += `Характеристика: ${charNames[characteristic]}<br>`;
+    result += `Температура: ${temp}°C<br>`;
+    result += `Мощность (220В): ${formatNumber(power220, 1)} кВт<br>`;
+    result += `Мощность (380В): ${formatNumber(power380, 1)} кВт`;
+    
+    showResult('res-breaker', result);
+    
+    addHistory({
+        name: 'Подбор автомата',
+        description: `Ток: ${I} А, Тип: ${loadNames[loadType]}, Характеристика: ${characteristic}`,
+        result: `${recommended}А ${characteristic}`
+    });
+}
+
+function calcResistor() {
+    const band1 = parseInt(document.getElementById('band1').value);
+    const band2 = parseInt(document.getElementById('band2').value);
+    const band3 = parseFloat(document.getElementById('band3').value);
+    const band4 = parseFloat(document.getElementById('band4').value);
+    
+    const value = (band1 * 10 + band2) * band3;
+    
+    let formattedValue = '';
+    if (value >= 1000000) {
+        formattedValue = `${(value / 1000000).toFixed(2)} МОм`;
+    } else if (value >= 1000) {
+        formattedValue = `${(value / 1000).toFixed(2)} кОм`;
+    } else {
+        formattedValue = `${value.toFixed(0)} Ом`;
+    }
+    
+    const tolerance = band4;
+    const min = value * (1 - tolerance / 100);
+    const max = value * (1 + tolerance / 100);
+    
+    const colors = ['#000', '#964B00', '#FF0000', '#FFA500', '#FFFF00', '#008000', '#0000FF', '#800080', '#808080', '#FFFFFF'];
+    const toleranceColors = {
+        1: '#964B00', 2: '#FF0000', 0.5: '#008000', 0.25: '#0000FF', 
+        0.1: '#800080', 5: '#FFD700', 10: '#C0C0C0'
+    };
+    
+    let band3Index = 0;
+    if (band3 === 10) band3Index = 1;
+    if (band3 === 100) band3Index = 2;
+    if (band3 === 1000) band3Index = 3;
+    if (band3 === 10000) band3Index = 4;
+    if (band3 === 100000) band3Index = 5;
+    if (band3 === 1000000) band3Index = 6;
+    if (band3 === 10000000) band3Index = 7;
+    if (band3 === 0.1) band3Index = 8;
+    if (band3 === 0.01) band3Index = 9;
+    
+    const bands = document.querySelectorAll('.resistor-band');
+    if (bands.length >= 4) {
+        bands[0].style.background = colors[band1];
+        bands[1].style.background = colors[band2];
+        bands[2].style.background = colors[band3Index];
+        bands[3].style.background = toleranceColors[tolerance];
+    }
+    
+    let result = `Номинал резистора: <b>${formattedValue}</b><br>`;
+    result += `Точность: ±${tolerance}%<br>`;
+    result += `Диапазон: ${min.toFixed(1)}...${max.toFixed(1)} Ом<br>`;
+    result += `Цветовой код: ${band1}-${band2}-×${band3}±${tolerance}%`;
+    
+    showResult('res-resistor', result);
+    
+    addHistory({
+        name: 'Цветовой код резистора',
+        description: `Код: ${band1}-${band2}-×${band3}±${tolerance}%`,
+        result: formattedValue
+    });
+}
+
+function calcUps() {
+    const P = parseNumber('ups-power');
+    const U = parseInt(document.getElementById('ups-voltage').value);
+    const C = parseNumber('ups-capacity');
+    const count = parseNumber('ups-count') || 1;
+    const eta = parseInt(document.getElementById('ups-efficiency').value) / 100;
+    const dod = parseInt(document.getElementById('ups-discharge').value) / 100;
+    
+    if (isNaN(P) || isNaN(C)) {
+        alert('Заполните обязательные поля!');
+        return;
+    }
+    
+    const totalCapacity = C * count;
+    const I = P / U / eta;
+    const timeHours = (totalCapacity * U * dod) / P;
+    const timeMinutes = timeHours * 60;
+    
+    let result = `Время автономии: <b>${formatNumber(timeHours, 1)} ч (${Math.round(timeMinutes)} мин)</b><br>`;
+    result += `Ток разряда: ${formatNumber(I, 1)} А<br>`;
+    result += `Мощность нагрузки: ${P} Вт<br>`;
+    result += `АКБ: ${totalCapacity} А·ч при ${U} В (${count} шт.)<br>`;
+    result += `КПД ИБП: ${eta * 100}%, Глубина разряда: ${dod * 100}%<br>`;
+    result += `Использовано емкости: ${formatNumber(C * dod, 1)} А·ч`;
+    
+    if (timeHours < 0.5) {
+        result += '<br>⚠️ <b>Малое время автономии!</b>';
+    }
+    
+    showResult('res-ups', result);
+    
+    addHistory({
+        name: 'Расчет ИБП',
+        description: `Нагрузка: ${P} Вт, АКБ: ${totalCapacity} А·ч ${U} В, КПД: ${eta * 100}%`,
+        result: `${formatNumber(timeHours, 1)} ч автономии`
+    });
+}
+
+function calcGround() {
+    const L = parseNumber('ground-length');
+    const d = parseNumber('ground-diameter');
+    const t = parseNumber('ground-depth');
+    const soil = parseInt(document.getElementById('ground-soil').value);
+    const type = document.getElementById('ground-type').value;
+    
+    if (isNaN(L) || isNaN(d)) {
+        alert('Заполните длину и диаметр заземлителя!');
+        return;
+    }
+    
+    const rho = soil;
+    const dM = d / 1000;
+    
+    let R = (rho / (2 * Math.PI * L)) * Math.log((4 * L) / dM);
+    
+    let kType = 1.0;
+    let typeName = "Стержневой";
+    if (type === 'angle') {
+        kType = 1.2;
+        typeName = "Уголковая сталь";
+    } else if (type === 'strip') {
+        kType = 1.4;
+        typeName = "Полоса";
+    }
+    
+    const Rfinal = R * kType;
+    
+    const soilNames = {
+        100: "Чернозем, глина",
+        300: "Суглинок",
+        500: "Песок",
+        1000: "Каменистый грунт"
+    };
+    
+    let result = `Сопротивление заземлителя: <b>${formatNumber(Rfinal, 2)} Ом</b><br>`;
+    result += `Тип: ${typeName}<br>`;
+    result += `Длина: ${L} м, Диаметр: ${d} мм<br>`;
+    result += `Глубина заложения: ${t} м<br>`;
+    result += `Уд. сопротивление грунта: ${rho} Ом·м (${soilNames[rho]})<br>`;
+    
+    if (Rfinal > 30) {
+        result += '⚠️ <b>Превышена норма для жилых домов (30 Ом)</b>';
+    } else if (Rfinal > 10) {
+        result += '⚠️ <b>Превышена норма для промпредприятий (10 Ом)</b>';
+    } else if (Rfinal > 4) {
+        result += '⚠️ <b>Соответствует большинству норм</b>';
+    } else {
+        result += '✅ <b>Отличное сопротивление заземления</b>';
+    }
+    
+    showResult('res-ground', result);
+    
+    addHistory({
+        name: 'Расчет заземления',
+        description: `${typeName}, Длина: ${L} м, Диаметр: ${d} мм, Грунт: ${soilNames[rho]}`,
+        result: `${formatNumber(Rfinal, 2)} Ом`
+    });
+}
+
+function calcBusbar() {
+    const I = parseNumber('busbar-current');
+    const material = document.getElementById('busbar-material').value;
+    const position = document.getElementById('busbar-position').value;
+    const count = parseInt(document.getElementById('busbar-count').value);
+    const temp = parseInt(document.getElementById('busbar-temp').value);
+    
+    if (isNaN(I)) {
+        alert('Введите ток нагрузки!');
+        return;
+    }
+    
+    const currentTable = {
+        copper: {
+            '15x3': 210, '20x3': 275, '25x3': 340, '30x4': 475, '40x4': 625,
+            '50x5': 860, '60x6': 1125, '80x8': 1680
+        },
+        aluminum: {
+            '15x3': 165, '20x3': 215, '25x3': 265, '30x4': 370, '40x4': 490,
+            '50x5': 675, '60x6': 880, '80x8': 1320
+        }
+    };
+    
+    let kPosition = 1.0;
+    if (position === 'horizontal') kPosition = 0.95;
+    
+    let kTemp = 1.0;
+    if (temp === 35) kTemp = 0.91;
+    if (temp === 45) kTemp = 0.82;
+    
+    const IperBusbar = I / count;
+    
+    const sizes = ['15x3', '20x3', '25x3', '30x4', '40x4', '50x5', '60x6', '80x8'];
+    let recommended = '';
+    let recommendedCurrent = 0;
+    
+    for (const size of sizes) {
+        const Iallowed = currentTable[material][size] * kPosition * kTemp * count;
+        if (Iallowed >= I) {
+            recommended = size;
+            recommendedCurrent = currentTable[material][size];
+            break;
+        }
+    }
+    
+    if (!recommended) {
+        recommended = '80x8';
+        recommendedCurrent = currentTable[material]['80x8'];
+    }
+    
+    const areas = {
+        '15x3': 45, '20x3': 60, '25x3': 75, '30x4': 120, '40x4': 160,
+        '50x5': 250, '60x6': 360, '80x8': 640
+    };
+    
+    const S = areas[recommended];
+    const materialName = material === 'copper' ? 'Медь' : 'Алюминий';
+    const positionName = position === 'vertical' ? 'Вертикально' : 'Горизонтально';
+    const IallowedTotal = recommendedCurrent * kPosition * kTemp * count;
+    
+    let result = `Рекомендуемая шина: <b>${recommended} мм</b><br>`;
+    result += `Площадь сечения: ${S} мм²<br>`;
+    result += `Материал: ${materialName}<br>`;
+    result += `Расположение: ${positionName}<br>`;
+    result += `Количество в фазе: ${count} шт.<br>`;
+    result += `Температура: ${temp}°C<br>`;
+    result += `Допустимый ток на шину: ${formatNumber(recommendedCurrent)} А<br>`;
+    result += `Общий допустимый ток: ${formatNumber(IallowedTotal)} А<br>`;
+    result += `Требуемый ток: ${I} А<br>`;
+    
+    if (IallowedTotal >= I) {
+        result += '✅ <b>Шина подходит</b>';
+    } else {
+        result += '⚠️ <b>Увеличьте количество шин или выберите большее сечение</b>';
+    }
+    
+    showResult('res-busbar', result);
+    
+    addHistory({
+        name: 'Подбор шины',
+        description: `Ток: ${I} А, Материал: ${materialName}, Шин в фазе: ${count}`,
+        result: `Шина ${recommended} мм (${S} мм²)`
+    });
+}
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    console.log(`MasterCalc PRO v${APP_VERSION} инициализирован`);
+    
+    fixHorizontalScroll();
+    
+    window.addEventListener('resize', fixHorizontalScroll);
+    window.addEventListener('orientationchange', function() {
+        setTimeout(fixHorizontalScroll, 300);
+    });
+    
+    initTheme();
+    
+    function loadFromHash() {
+        const hash = window.location.hash.substring(1);
+        if (hash && hash !== 'menu' && hash !== currentScreen) {
+            setTimeout(() => {
+                openScreen(hash);
+            }, 100);
+        }
+    }
+    
+    setTimeout(loadFromHash, 100);
+    window.addEventListener('hashchange', loadFromHash);
+    
+    // Навигация
+    document.getElementById('menuButton').addEventListener('click', toggleMenu);
+    document.getElementById('closeMenuBtn').addEventListener('click', closeMenu);
+    
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('menuOverlay');
+        if (menu && menu.style.display === 'block' && 
+            !e.target.closest('.menu-content') && 
+            !e.target.closest('.menu-btn') &&
+            !e.target.closest('.theme-toggle')) {
+            closeMenu();
+        }
+    });
+    
+    document.querySelectorAll('.menu-item[data-screen]').forEach(item => {
+        item.addEventListener('click', function() {
+            const screenId = this.getAttribute('data-screen');
+            openScreen(screenId);
+        });
+    });
+    
+    document.querySelectorAll('.tile[data-screen]').forEach(tile => {
+        tile.addEventListener('click', function() {
+            const screenId = this.getAttribute('data-screen');
+            openScreen(screenId);
+        });
+    });
+    
+    document.querySelectorAll('.back-btn[data-screen]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const screenId = this.getAttribute('data-screen');
+            openScreen(screenId);
+        });
+    });
+    
+    document.querySelectorAll('.acc-header').forEach(header => {
+        header.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('favorite-btn')) {
+                const item = this.parentElement;
+                item.classList.toggle('open');
+                setTimeout(fixHorizontalScroll, 100);
+            }
+        });
+    });
+    
+    // Избранное
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('favorite-btn')) {
+            e.stopPropagation();
+            const btn = e.target;
+            const header = btn.closest('.acc-header');
+            const title = header.querySelector('.acc-header-text').textContent.replace('☆', '').replace('★', '').trim();
+            const id = title.toLowerCase().replace(/[^a-z0-9а-я]/g, '-');
+            
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                btn.textContent = '☆';
+                
+                const favorites = JSON.parse(localStorage.getItem('mastercalc_favorites') || '[]');
+                const index = favorites.findIndex(fav => fav.id === id);
+                if (index !== -1) {
+                    removeFavorite(index);
+                }
+            } else {
+                btn.classList.add('active');
+                btn.textContent = '★';
+                
+                const screen = currentScreen;
+                const description = header.nextElementSibling?.querySelector('.hint')?.textContent || 
+                                  'Часто используемый калькулятор';
+                
+                addFavorite(id, title, description, screen);
+            }
+        }
+    });
+    
+    // Кнопки расчетов
+    document.getElementById('calcOhmBtn')?.addEventListener('click', calcOhm);
+    document.getElementById('calcPowerBtn')?.addEventListener('click', calcPower);
+    document.getElementById('calcElecConvertBtn')?.addEventListener('click', calcElecConvert);
+    document.getElementById('calcDividerBtn')?.addEventListener('click', calcDivider);
+    document.getElementById('calcPressureBtn')?.addEventListener('click', calcPressure);
+    document.getElementById('calcTempBtn')?.addEventListener('click', calcTemp);
+    document.getElementById('calcFlowBtn')?.addEventListener('click', calcFlow);
+    document.getElementById('calcLevelBtn')?.addEventListener('click', calcLevel);
+    document.getElementById('calcDropBtn')?.addEventListener('click', calcDrop);
+    document.getElementById('calcSectionBtn')?.addEventListener('click', calcSection);
+    document.getElementById('calcCableCurrentBtn')?.addEventListener('click', calcCableCurrent);
+    document.getElementById('calcLightBtn')?.addEventListener('click', calcLight);
+    document.getElementById('calcMotorBtn')?.addEventListener('click', calcMotor);
+    document.getElementById('calcHeatBtn')?.addEventListener('click', calcHeat);
+    document.getElementById('calcLengthBtn')?.addEventListener('click', calcLength);
+    document.getElementById('calcVolumeBtn')?.addEventListener('click', calcVolume);
+    document.getElementById('calcBreakerBtn')?.addEventListener('click', calcBreaker);
+    document.getElementById('calcResistorBtn')?.addEventListener('click', calcResistor);
+    document.getElementById('calcUpsBtn')?.addEventListener('click', calcUps);
+    document.getElementById('calcGroundBtn')?.addEventListener('click', calcGround);
+    document.getElementById('calcBusbarBtn')?.addEventListener('click', calcBusbar);
+    
+    // Утилиты
+    document.getElementById('saveDraftBtn')?.addEventListener('click', saveDraft);
+    document.getElementById('clearDraftBtn')?.addEventListener('click', clearDraft);
+    document.getElementById('saveTemplateBtn')?.addEventListener('click', saveTemplate);
+    document.getElementById('clearTemplatesBtn')?.addEventListener('click', clearTemplates);
+    document.getElementById('clearHistoryBtn')?.addEventListener('click', clearHistory);
+    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+    
+    // Динамические изменения
+    document.getElementById('ohm-what')?.addEventListener('change', function() {
+        const what = this.value;
+        const inputsDiv = document.getElementById('ohm-inputs');
+        
+        if (what === 'voltage') {
+            inputsDiv.innerHTML = `
+                <label>Ток (I), А:</label>
+                <input type="number" id="ohm-current" placeholder="Например: 5">
+                
+                <label>Сопротивление (R), Ом:</label>
+                <input type="number" id="ohm-resistance" placeholder="Например: 44">
+            `;
+        } else if (what === 'current') {
+            inputsDiv.innerHTML = `
+                <label>Напряжение (U), В:</label>
+                <input type="number" id="ohm-current" placeholder="Например: 220">
+                
+                <label>Сопротивление (R), Ом:</label>
+                <input type="number" id="ohm-resistance" placeholder="Например: 44">
+            `;
+        } else if (what === 'resistance') {
+            inputsDiv.innerHTML = `
+                <label>Напряжение (U), В:</label>
+                <input type="number" id="ohm-current" placeholder="Например: 220">
+                
+                <label>Ток (I), А:</label>
+                <input type="number" id="ohm-resistance" placeholder="Например: 5">
+            `;
+        }
+    });
+    
+    document.getElementById('level-density')?.addEventListener('change', function() {
+        const customInput = document.getElementById('custom-density');
+        if (this.value === 'custom') {
+            customInput.style.display = 'block';
+        } else {
+            customInput.style.display = 'none';
+        }
+    });
+    
+    // Загрузка данных
+    loadDraft();
+    
+    // PWA поддержка
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(registration => {
+                console.log('ServiceWorker зарегистрирован:', registration);
+            }).catch(error => {
+                console.log('Ошибка регистрации ServiceWorker:', error);
+            });
+        });
+    }
+    
+    // Автосохранение
+    setInterval(() => {
+        const draftText = document.getElementById('draft-text');
+        if (draftText && draftText.value.trim() !== '') {
+            localStorage.setItem('mastercalc_draft', draftText.value);
+            console.log('Черновик автосохранен');
+        }
+    }, 30000);
+    
+    // Горячие клавиши
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            if (currentScreen === 'draft') {
+                saveDraft();
+            }
+        }
+        
+        if (e.key === 'Escape') {
+            if (currentScreen !== 'menu') {
+                openScreen('menu');
+            } else {
+                closeMenu();
+            }
+        }
+        
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            toggleTheme();
+        }
+    });
+    
+    // Статистика
+    let usageStats = JSON.parse(localStorage.getItem('mastercalc_stats') || '{}');
+    usageStats.firstLaunch = usageStats.firstLaunch || new Date().toISOString();
+    usageStats.launchCount = (usageStats.launchCount || 0) + 1;
+    usageStats.lastLaunch = new Date().toISOString();
+    
+    localStorage.setItem('mastercalc_stats', JSON.stringify(usageStats));
+    
+    console.log(`Запуск №${usageStats.launchCount}, первый запуск: ${new Date(usageStats.firstLaunch).toLocaleDateString()}`);
+    
+    // Фикс через секунду
+    setTimeout(fixHorizontalScroll, 1000);
+});
+
+// Глобальные функции
+window.openScreen = openScreen;
+window.removeFavorite = removeFavorite;
+window.deleteHistoryItem = deleteHistoryItem;
+window.loadTemplateData = loadTemplateData;
+window.deleteTemplate = deleteTemplate;
+</script>
+</body>
+</html>
