@@ -2251,53 +2251,77 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(loadFromHash, 100);
     window.addEventListener('hashchange', loadFromHash);
     
-    // Навигация (Клики)
-    document.getElementById('menuButton')?.addEventListener('click', toggleMenu);
-    document.getElementById('closeMenuBtn')?.addEventListener('click', closeMenu);
-    document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+    // ==========================================
+    // ИСПРАВЛЕННАЯ НАВИГАЦИЯ (МЕНЮ И ТЕМА)
+    // ==========================================
     
-    // Клик вне меню
-    document.addEventListener('click', function(e) {
+    // 1. Функции управления меню
+    function openMenu() {
         const menu = document.getElementById('menuOverlay');
-        if (menu && menu.style.display === 'block' && 
-            !e.target.closest('.menu-content') && 
-            !e.target.closest('.menu-btn') &&
-            !e.target.closest('.theme-toggle')) {
-            closeMenu();
+        if (menu) menu.style.display = 'block';
+    }
+
+    function closeMenu() {
+        const menu = document.getElementById('menuOverlay');
+        if (menu) menu.style.display = 'none';
+    }
+
+    // 2. Привязка кликов к кнопкам в шапке
+    document.getElementById('menuButton')?.addEventListener('click', openMenu);
+    document.getElementById('closeMenuBtn')?.addEventListener('click', closeMenu);
+    
+    // Кнопка смены темы
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+        if (typeof toggleTheme === 'function') {
+            toggleTheme();
+        } else {
+            document.body.classList.toggle('light-theme');
         }
     });
 
-    // Навешивание событий на плитки и кнопки меню
-    document.querySelectorAll('.menu-item[data-screen], .tile[data-screen], .back-btn[data-screen]').forEach(item => {
-        item.addEventListener('click', function() {
-            openScreen(this.getAttribute('data-screen'));
-        });
+    // 3. Закрытие меню при клике в пустое место (вне контента)
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('menuOverlay');
+        if (menu && menu.style.display === 'block') {
+            if (!e.target.closest('.menu-content') && 
+                !e.target.closest('#menuButton') && 
+                !e.target.closest('#themeToggle')) {
+                closeMenu();
+            }
+        }
     });
 
-    // Аккордеоны
-    document.querySelectorAll('.acc-header').forEach(header => {
-        header.addEventListener('click', function(e) {
-            if (!e.target.classList.contains('favorite-btn')) {
-                this.parentElement.classList.toggle('open');
-                setTimeout(fixHorizontalScroll, 100);
+    // 4. Переходы между экранами при клике на плитки/пункты меню
+    document.querySelectorAll('[data-screen]').forEach(item => {
+        item.addEventListener('click', function() {
+            const screenId = this.getAttribute('data-screen');
+            if (typeof openScreen === 'function') {
+                openScreen(screenId);
+                closeMenu(); // Закрываем меню после перехода
             }
         });
     });
 
-    // PWA: Временно отключено для стабильности
-    /*
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(err => console.log(err));
+    // 5. Аккордеоны (раскрытие списков)
+    document.querySelectorAll('.acc-header').forEach(header => {
+        header.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('favorite-btn')) {
+                this.parentElement.classList.toggle('open');
+                if (typeof fixHorizontalScroll === 'function') fixHorizontalScroll();
+            }
         });
+    });
+
+    // 6. Статистика запусков
+    try {
+        let usageStats = JSON.parse(localStorage.getItem('mastercalc_stats') || '{}');
+        usageStats.launchCount = (usageStats.launchCount || 0) + 1;
+        localStorage.setItem('mastercalc_stats', JSON.stringify(usageStats));
+    } catch(e) {
+        console.log("Stats error:", e);
     }
-    */
-    
-    // Запуск статистики
-    let usageStats = JSON.parse(localStorage.getItem('mastercalc_stats') || '{}');
-    usageStats.launchCount = (usageStats.launchCount || 0) + 1;
-    localStorage.setItem('mastercalc_stats', JSON.stringify(usageStats));
-});
+}); // Закрытие DOMContentLoaded
 </script>
+
 </body>
 </html>
