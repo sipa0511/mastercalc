@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<!-- 
+  ГЛАВНЫЙ ФАЙЛ - КАРКАС САЙТА
+  Содержит всю HTML-разметку, мета-теги и структуру страницы
+-->
+<html lang="ru">
+<head>
+    <!-- КОДИРОВКА UTF-8 ДЛЯ РУССКИХ БУКВ -->
+    <meta charset="UTF-8">
+    
+    <!-- АДАПТИВНЫЙ ВЬЮПОРТ С ФИКСОМ ДЛЯ IPHONE 15+ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- ЗАГОЛОВОК ВКЛАДКИ БРАУЗЕРА -->
+    <title>MasterCalc PRO v7.3</title>
+    
+    <!-- PWA MANIFEST - ДЛЯ УСТАНОВКИ КАК ПРИЛОЖЕНИЕ -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- ИКОНКИ ДЛЯ РАЗНЫХ УСТРОЙСТВ -->
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    
+    <!-- НАСТРОЙКИ ДЛЯ IOS SAFARI (ЧТОБЫ РАБОТАЛО КАК PWA) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ff9800" id="themeColorMeta">
+    <meta name="apple-mobile-web-app-title" content="MasterCalc">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#ff9800">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- ПОДКЛЮЧЕНИЕ СТИЛЕЙ -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+    <!-- ======================= ШАПКА САЙТА ======================= -->
+    <header id="mainHeader">
+        <div class="header-title">🛠️ MasterCalc PRO v7.3</div>
+        <div class="header-controls">
+            <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ (ТЕМНАЯ/СВЕТЛАЯ) -->
+            <button class="theme-toggle" id="themeToggle">🌙</button>
+            <!-- КНОПКА ОТКРЫТИЯ МЕНЮ -->
+            <button class="menu-btn" id="menuButton">☰</button>
+        </div>
+    </header>
+
+    <!-- ======================= ВЫПАДАЮЩЕЕ МЕНЮ ======================= -->
+    <div id="menuOverlay" class="menu-overlay">
+        <div class="menu-content">
+            <!-- ЗАГОЛОВОК МЕНЮ -->
+            <div style="background: #ff9800; color: black; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; text-align: center;">
+                📋 Быстрая навигация
+            </div>
+            
+            <!-- ПУНКТЫ МЕНЮ С АТРИБУТАМИ ДЛЯ ПЕРЕКЛЮЧЕНИЯ ЭКРАНОВ -->
+            <div class="menu-item" data-screen="draft">📝 Черновик и заметки</div>
+            <div class="menu-item" data-screen="donate">❤️ Поддержать проект</div>
+            <div class="menu-item" data-screen="reference">📚 Справочные таблицы</div>
+            <div class="menu-item" data-screen="new-calculators">🆕 Новые калькуляторы</div>
+            <div class="menu-item" data-screen="favorites">⭐ Избранное</div>
+            <div class="menu-item" data-screen="history">📊 История расчетов</div>
+            <div class="menu-item" id="closeMenuBtn">✕ Закрыть меню</div>
+        </div>
+    </div>
+
+    <!-- ======================= ГЛАВНОЕ МЕНЮ (ЭКРАН 1) ======================= -->
+    <div id="menu" class="screen active">
+        <div class="intro">
+            <b>Инженерный помощник</b>
+            <p>Инженерный калькулятор для электриков, КИПовцев, монтажников</p>
+        </div>
+        
+        <div class="info-box">
+            <span class="category-icon">💡</span>
+            <b>Как пользоваться:</b> Выберите категорию → откройте нужный калькулятор → введите данные → получите результат
+        </div>
+        
+        <!-- СЕТКА КНОПОК ДЛЯ ПЕРЕХОДА В РАЗДЕЛЫ -->
+        <div class="grid">
+            <div class="tile" data-screen="elec">
+                <span class="tile-icon">⚡</span>
+                ЭЛЕКТРИКА
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Напряжение, ток, мощность</div>
+            </div>
+            
+            <div class="tile" data-screen="kip">
+                <span class="tile-icon">🔧</span>
+                КИПиА
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Давление, температура, расход</div>
+            </div>
+            
+            <div class="tile" data-screen="cable">
+                <span class="tile-icon">🔌</span>
+                КАБЕЛИ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Сечение, падение напряжения</div>
+            </div>
+            
+            <div class="tile" data-screen="new-calculators">
+                <span class="tile-icon">🆕</span>
+                НОВЫЕ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Освещенность, делители</div>
+            </div>
+            
+            <div class="tile" data-screen="len">
+                <span class="tile-icon">📏</span>
+                ДЛИНА
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Конвертация единиц</div>
+            </div>
+            
+            <div class="tile" data-screen="vol">
+                <span class="tile-icon">📦</span>
+                ОБЪЕМ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Конвертация единиц</div>
+            </div>
+            
+            <div class="tile" data-screen="tools">
+                <span class="tile-icon">⚙️</span>
+                ИНСТРУМЕНТЫ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Автоматы, ИБП, резисторы</div>
+            </div>
+            
+            <div class="tile" data-screen="favorites">
+                <span class="tile-icon">⭐</span>
+                ИЗБРАННОЕ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Быстрый доступ</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ЭЛЕКТРИКА (ЭКРАН 2) ======================= -->
+    <div id="elec" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>⚡ ЭЛЕКТРИЧЕСКИЕ РАСЧЕТЫ</b>
+            <p>Расчеты для электриков и электромонтажников</p>
+        </div>
+        
+        <div class="info-box">
+            <span class="category-icon">📖</span>
+            <b>Инструкция:</b> Выберите нужный калькулятор → введите значения → нажмите "РАССЧИТАТЬ"
+        </div>
+        
+        <!-- БЛОК 1: ЗАКОН ОМА -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">⚡ Закон Ома (U = I × R)</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет напряжения, тока или сопротивления</div>
+                
+                <div class="tool-tip">💡 Пояснение: Используйте для расчета одного из параметров при известных двух других</div>
+                
+                <label>Что нужно рассчитать:</label>
+                <select id="ohm-what">
+                    <option value="voltage">Напряжение (U)</option>
+                    <option value="current">Ток (I)</option>
+                    <option value="resistance">Сопротивление (R)</option>
+                </select>
+                
+                <!-- ДИНАМИЧЕСКИ МЕНЯЮЩИЕСЯ ПОЛЯ ВВОДА -->
+                <div id="ohm-inputs">
+                    <label>Ток (I), А:</label>
+                    <input type="number" min="0" step="any" id="ohm-current" placeholder="Например: 5">
+                    
+                    <label>Сопротивление (R), Ом:</label>
+                    <input type="number" min="0" step="any" id="ohm-resistance" placeholder="Например: 44">
+                </div>
+                
+                <button class="btn" id="calcOhmBtn">РАССЧИТАТЬ</button>
+                <div id="res-ohm" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: МОЩНОСТЬ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">💡 Мощность (P = U × I)</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет электрической мощности</div>
+                
+                <div class="tool-tip">💡 Пояснение: Мощность = Напряжение × Ток</div>
+                
+                <label>Напряжение (U), В:</label>
+                <input type="number" min="0" step="any" id="power-voltage" placeholder="Например: 220">
+                
+                <label>Ток (I), А:</label>
+                <input type="number" min="0" step="any" id="power-current" placeholder="Например: 5">
+                
+                <button class="btn" id="calcPowerBtn">РАССЧИТАТЬ МОЩНОСТЬ</button>
+                <div id="res-power" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: КОНВЕРТЕР ЕДИНИЦ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">🔄 Конвертер единиц</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Конвертация электрических единиц</div>
+                
+                <div class="tool-tip">💡 Пояснение: Преобразование между различными единицами измерения</div>
+                
+                <label>Тип конвертации:</label>
+                <select id="elec-convert-type">
+                    <option value="voltage">Напряжение (В ↔ кВ ↔ мВ)</option>
+                    <option value="current">Ток (А ↔ мА)</option>
+                    <option value="resistance">Сопротивление (Ом ↔ кОм)</option>
+                    <option value="power">Мощность (Вт ↔ кВт)</option>
+                </select>
+                
+                <label>Из:</label>
+                <select id="elec-from-unit">
+                    <option value="V">Вольты (В)</option>
+                    <option value="kV">Киловольты (кВ)</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="elec-to-unit">
+                    <option value="kV">Киловольты (кВ)</option>
+                    <option value="V">Вольты (В)</option>
+                </select>
+                
+                <label>Значение:</label>
+                <input type="number" min="0" step="any" id="elec-convert-value" placeholder="Например: 220">
+                
+                <button class="btn" id="calcElecConvertBtn">КОНВЕРТИРОВАТЬ</button>
+                <div id="res-elec-convert" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 4: ДЕЛИТЕЛЬ НАПРЯЖЕНИЯ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">🧲 Делитель напряжения</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет делителя на резисторах</div>
+                
+                <div class="tool-tip">💡 Пояснение: Uвых = Uвх × (R2 / (R1 + R2))</div>
+                
+                <label>Входное напряжение (Uвх), В:</label>
+                <input type="number" min="0" step="any" id="divider-voltage" placeholder="Например: 12">
+                
+                <label>Сопротивление R1, Ом:</label>
+                <input type="number" min="0.001" step="any" id="divider-r1" placeholder="Например: 1000">
+                
+                <label>Сопротивление R2, Ом:</label>
+                <input type="number" min="0.001" step="any" id="divider-r2" placeholder="Например: 2000">
+                
+                <button class="btn" id="calcDividerBtn">РАССЧИТАТЬ</button>
+                <div id="res-divider" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 5: ТАБЛИЦА МОЩНОСТЕЙ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Таблица мощностей</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Напряжение</th><th>Ток, А</th><th>Мощность, Вт</th><th>Применение</th></tr>
+                    <tr><td>220В</td><td>1</td><td>220</td><td>Маленькая лампа</td></tr>
+                    <tr><td>220В</td><td>5</td><td>1100</td><td>Чайник</td></tr>
+                    <tr><td>220В</td><td>10</td><td>2200</td><td>Обогреватель</td></tr>
+                    <tr><td>220В</td><td>16</td><td>3520</td><td>Духовка</td></tr>
+                    <tr><td>380В</td><td>10</td><td>3800</td><td>Двигатель</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= КИПиА (ЭКРАН 3) ======================= -->
+    <div id="kip" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>🔧 КИПиА (Контрольно-Измерительные Приборы)</b>
+            <p>Расчеты для контрольно-измерительных приборов</p>
+        </div>
+        
+        <div class="info-box">
+            <span class="category-icon">📖</span>
+            <b>Инструкция:</b> Используется для расчетов давления, температуры, расхода жидкостей и газов
+        </div>
+        
+        <!-- БЛОК 1: ДАВЛЕНИЕ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">📊 Давление</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Конвертация единиц давления</div>
+                
+                <div class="tool-tip">💡 Пояснение: 1 бар = 0.1 МПа = 1.0197 кгс/см²</div>
+                
+                <label>Из:</label>
+                <select id="pressure-from">
+                    <option value="bar">бар</option>
+                    <option value="mpa">МПа</option>
+                    <option value="kgf">кгс/см²</option>
+                    <option value="atm">атм</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="pressure-to">
+                    <option value="mpa">МПа</option>
+                    <option value="bar">бар</option>
+                    <option value="kgf">кгс/см²</option>
+                    <option value="atm">атм</option>
+                </select>
+                
+                <label>Значение:</label>
+                <input type="number" min="0" step="any" id="pressure-value" placeholder="Например: 10">
+                
+                <button class="btn" id="calcPressureBtn">РАССЧИТАТЬ</button>
+                <div id="res-pressure" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТЕМПЕРАТУРА -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">🌡️ Температура</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Конвертация температурных шкал</div>
+                
+                <div class="tool-tip">💡 Пояснение: °C → °F: (×9/5)+32 | °F → °C: (-32)×5/9</div>
+                
+                <label>Из:</label>
+                <select id="temp-from">
+                    <option value="c">Градусы Цельсия (°C)</option>
+                    <option value="f">Градусы Фаренгейта (°F)</option>
+                    <option value="k">Кельвины (K)</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="temp-to">
+                    <option value="f">Градусы Фаренгейта (°F)</option>
+                    <option value="c">Градусы Цельсия (°C)</option>
+                    <option value="k">Кельвины (K)</option>
+                </select>
+                
+                <label>Температура:</label>
+                <input type="number" min="-273" step="any" id="temp-value" placeholder="Например: 20">
+                
+                <button class="btn" id="calcTempBtn">КОНВЕРТИРОВАТЬ</button>
+                <div id="res-temp" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: РАСХОД -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">💧 Расход жидкости/газа</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет расхода среды</div>
+                
+                <div class="tool-tip">💡 Пояснение: 1 м³/ч = 1000 л/ч = 0.2778 л/с</div>
+                
+                <label>Из:</label>
+                <select id="flow-from">
+                    <option value="m3h">м³/ч</option>
+                    <option value="lmin">л/мин</option>
+                    <option value="ls">л/с</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="flow-to">
+                    <option value="lmin">л/мин</option>
+                    <option value="m3h">м³/ч</option>
+                    <option value="ls">л/с</option>
+                </select>
+                
+                <label>Расход:</label>
+                <input type="number" min="0" step="any" id="flow-value" placeholder="Например: 10">
+                
+                <button class="btn" id="calcFlowBtn">РАССЧИТАТЬ</button>
+                <div id="res-flow" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 4: УРОВЕНЬ ЖИДКОСТИ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📏 Уровень жидкости</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет давления по уровню жидкости</div>
+                
+                <div class="tool-tip">💡 Пояснение: P = ρ × g × h (давление = плотность × ускорение × высота)</div>
+                
+                <label>Высота столба жидкости, мм:</label>
+                <input type="number" min="0" step="any" id="level-height" placeholder="Например: 1000">
+                
+                <label>Плотность жидкости:</label>
+                <select id="level-density">
+                    <option value="1000">Вода (1000 кг/м³)</option>
+                    <option value="800">Масло (~800 кг/м³)</option>
+                    <option value="13600">Ртуть (13600 кг/м³)</option>
+                    <option value="custom">Своя плотность</option>
+                </select>
+                
+                <!-- ДОПОЛНИТЕЛЬНОЕ ПОЛЕ ДЛЯ СВОЕЙ ПЛОТНОСТИ -->
+                <div id="custom-density" style="display:none;">
+                    <label>Своя плотность (кг/м³):</label>
+                    <input type="number" min="0" step="any" id="level-custom-density" placeholder="Например: 850">
+                </div>
+                
+                <button class="btn" id="calcLevelBtn">РАССЧИТАТЬ ДАВЛЕНИЕ</button>
+                <div id="res-level" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 5: ТАБЛИЦА ДАВЛЕНИЙ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Справочная таблица</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Единица</th><th>Значение в барах</th><th>Применение</th></tr>
+                    <tr><td>1 бар</td><td>1.0</td><td>Техническая атмосфера</td></tr>
+                    <tr><td>1 МПа</td><td>10.0</td><td>Мегапаскаль</td></tr>
+                    <tr><td>1 кгс/см²</td><td>0.98</td><td>Техническая система</td></tr>
+                    <tr><td>1 атм</td><td>1.013</td><td>Физическая атмосфера</td></tr>
+                    <tr><td>1 psi</td><td>0.069</td><td>Фунт на кв. дюйм</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= КАБЕЛИ (ЭКРАН 4) ======================= -->
+    <div id="cable" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>🔌 РАСЧЕТ КАБЕЛЕЙ И ПРОВОДОВ</b>
+            <p>Подбор сечения, расчет падения напряжения</p>
+        </div>
+        
+        <div class="info-box">
+            <span class="category-icon">📖</span>
+            <b>Инструкция:</b> Выберите калькулятор → введите параметры кабеля → получите рекомендации
+        </div>
+        
+        <!-- БЛОК 1: ПАДЕНИЕ НАПРЯЖЕНИЯ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">📉 Падение напряжения</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет падения напряжения в кабеле</div>
+                
+                <div class="tool-tip">💡 Пояснение: ΔU = (2 × L × I × ρ) / S (для однофазной сети)</div>
+                
+                <label>Ток нагрузки (I), А:</label>
+                <input type="number" min="0" step="any" id="drop-current" placeholder="Например: 16">
+                
+                <label>Длина линии (L), м:</label>
+                <input type="number" min="0" step="any" id="drop-length" placeholder="Например: 50">
+                
+                <label>Сечение кабеля (S), мм²:</label>
+                <select id="drop-section">
+                    <option value="1.5">1.5 мм²</option>
+                    <option value="2.5">2.5 мм²</option>
+                    <option value="4">4 мм²</option>
+                    <option value="6">6 мм²</option>
+                    <option value="10">10 мм²</option>
+                    <option value="16">16 мм²</option>
+                </select>
+                
+                <label>Материал проводника:</label>
+                <select id="drop-material">
+                    <option value="0.0175">Медь (ρ=0.0175)</option>
+                    <option value="0.028">Алюминий (ρ=0.028)</option>
+                </select>
+                
+                <label>Напряжение сети:</label>
+                <select id="drop-voltage">
+                    <option value="220">220В (1 фаза)</option>
+                    <option value="380">380В (3 фазы)</option>
+                </select>
+                
+                <button class="btn" id="calcDropBtn">РАССЧИТАТЬ ПАДЕНИЕ</button>
+                <div id="res-drop" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ПОДБОР СЕЧЕНИЯ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📏 Подбор сечения</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Подбор сечения кабеля по току</div>
+                
+                <div class="tool-tip">💡 Пояснение: Выбирается ближайшее большее стандартное сечение</div>
+                
+                <label>Ток нагрузки, А:</label>
+                <input type="number" min="0" step="any" id="section-current" placeholder="Например: 25">
+                
+                <label>Материал проводника:</label>
+                <select id="section-material">
+                    <option value="copper">Медь</option>
+                    <option value="aluminum">Алюминий</option>
+                </select>
+                
+                <label>Способ прокладки:</label>
+                <select id="section-install">
+                    <option value="open">Открытая</option>
+                    <option value="tube">В трубе</option>
+                    <option value="hidden">Скрытая</option>
+                </select>
+                
+                <label>Количество проводников:</label>
+                <select id="section-count">
+                    <option value="1">1-2 проводника</option>
+                    <option value="3">3-4 проводника</option>
+                    <option value="5">5-6 проводников</option>
+                </select>
+                
+                <button class="btn" id="calcSectionBtn">ПОДОБРАТЬ СЕЧЕНИЕ</button>
+                <div id="res-section" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: ДОПУСТИМЫЙ ТОК -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">⚡ Допустимый ток</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет допустимого тока для кабеля</div>
+                
+                <div class="tool-tip">💡 Пояснение: Максимальный ток, который может длительно выдерживать кабель</div>
+                
+                <label>Сечение кабеля, мм²:</label>
+                <select id="cable-section">
+                    <option value="1.5">1.5 мм²</option>
+                    <option value="2.5">2.5 мм²</option>
+                    <option value="4">4 мм²</option>
+                    <option value="6">6 мм²</option>
+                    <option value="10">10 мм²</option>
+                    <option value="16">16 мм²</option>
+                    <option value="25">25 мм²</option>
+                </select>
+                
+                <label>Материал проводника:</label>
+                <select id="cable-material-current">
+                    <option value="copper">Медь</option>
+                    <option value="aluminum">Алюминий</option>
+                </select>
+                
+                <label>Температура окружающей среды:</label>
+                <select id="cable-temp">
+                    <option value="30">30°C</option>
+                    <option value="40">40°C</option>
+                    <option value="50">50°C</option>
+                </select>
+                
+                <button class="btn" id="calcCableCurrentBtn">РАССЧИТАТЬ ТОК</button>
+                <div id="res-cable-current" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 4: ТАБЛИЦА СЕЧЕНИЙ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Таблица сечений и токов</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Сечение, мм²</th><th>Медь, А</th><th>Алюминий, А</th><th>Мощность 220В</th></tr>
+                    <tr><td>1.5</td><td>19</td><td>15</td><td>4.1 кВт</td></tr>
+                    <tr><td>2.5</td><td>27</td><td>21</td><td>5.9 кВт</td></tr>
+                    <tr><td>4</td><td>38</td><td>29</td><td>8.3 кВт</td></tr>
+                    <tr><td>6</td><td>46</td><td>36</td><td>10.1 кВт</td></tr>
+                    <tr><td>10</td><td>68</td><td>50</td><td>15.0 кВт</td></tr>
+                    <tr><td>16</td><td>90</td><td>70</td><td>19.8 кВт</td></tr>
+                    <tr><td>25</td><td>115</td><td>90</td><td>25.3 кВт</td></tr>
+                </table>
+                <div class="hint">* Значения для открытой прокладки при +30°C</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= НОВЫЕ КАЛЬКУЛЯТОРЫ (ЭКРАН 5) ======================= -->
+    <div id="new-calculators" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>🆕 НОВЫЕ И ДОПОЛНИТЕЛЬНЫЕ КАЛЬКУЛЯТОРЫ</b>
+            <p>Добавленные по вашим запросам</p>
+        </div>
+        
+        <!-- БЛОК 1: ОСВЕЩЕННОСТЬ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">💡 Освещенность</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет освещенности помещения</div>
+                
+                <div class="tool-tip">💡 Пояснение: Нормы освещенности: офис 300-500 лк, цех 200-300 лк</div>
+                
+                <label>Площадь помещения, м²:</label>
+                <input type="number" min="0" step="any" id="light-area" placeholder="Например: 20">
+                
+                <label>Тип помещения:</label>
+                <select id="light-type">
+                    <option value="300">Офис (300 лк)</option>
+                    <option value="200">Производство (200 лк)</option>
+                    <option value="150">Склад (150 лк)</option>
+                    <option value="500">Чертежная (500 лк)</option>
+                </select>
+                
+                <label>Мощность светильника, Вт:</label>
+                <input type="number" min="0" step="any" id="light-power" placeholder="Например: 18">
+                
+                <label>Световой поток (лм/Вт):</label>
+                <select id="light-efficiency">
+                    <option value="80">Лампа накаливания (10 лм/Вт)</option>
+                    <option value="100">Люминесцентная (80 лм/Вт)</option>
+                    <option value="120">Светодиодная (100 лм/Вт)</option>
+                </select>
+                
+                <button class="btn" id="calcLightBtn">РАССЧИТАТЬ</button>
+                <div id="res-light" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: МОЩНОСТЬ ДВИГАТЕЛЯ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">🚀 Мощность двигателя</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет мощности электродвигателя</div>
+                
+                <div class="tool-tip">💡 Пояснение: P = √3 × U × I × cosφ × η / 1000 (кВт)</div>
+                
+                <label>Напряжение, В:</label>
+                <select id="motor-voltage">
+                    <option value="220">220В (1 фаза)</option>
+                    <option value="380">380В (3 фазы)</option>
+                    <option value="660">660В</option>
+                </select>
+                
+                <label>Ток, А:</label>
+                <input type="number" min="0" step="any" id="motor-current" placeholder="Например: 10">
+                
+                <label>Коэффициент мощности (cosφ):</label>
+                <select id="motor-cos">
+                    <option value="0.8">0.8 (средний)</option>
+                    <option value="0.85">0.85 (хороший)</option>
+                    <option value="0.9">0.9 (высокий)</option>
+                </select>
+                
+                <label>КПД двигателя, %:</label>
+                <select id="motor-efficiency">
+                    <option value="85">85%</option>
+                    <option value="90">90%</option>
+                    <option value="92">92%</option>
+                    <option value="95">95%</option>
+                </select>
+                
+                <button class="btn" id="calcMotorBtn">РАССЧИТАТЬ МОЩНОСТЬ</button>
+                <div id="res-motor" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: ТЕПЛОВАЯ МОЩНОСТЬ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">🔥 Тепловая мощность</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет тепловой мощности нагревателя</div>
+                
+                <div class="tool-tip">💡 Пояснение: Q = P × t × 0.86 (ккал) или Q = P × t × 3.6 (кДж)</div>
+                
+                <label>Электрическая мощность, кВт:</label>
+                <input type="number" min="0" step="any" id="heat-power" placeholder="Например: 2">
+                
+                <label>Время работы, часов:</label>
+                <input type="number" min="0" step="any" id="heat-time" placeholder="Например: 5">
+                
+                <label>Единицы измерения:</label>
+                <select id="heat-unit">
+                    <option value="kcal">Килокалории (ккал)</option>
+                    <option value="kj">Килоджоули (кДж)</option>
+                    <option value="kwh">Киловатт-часы (кВт·ч)</option>
+                </select>
+                
+                <button class="btn" id="calcHeatBtn">РАССЧИТАТЬ ТЕПЛО</button>
+                <div id="res-heat" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ДЛИНА (ЭКРАН 6) ======================= -->
+    <div id="len" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>📏 КОНВЕРТЕР ДЛИНЫ</b>
+            <p>Конвертация единиц длины и расстояния</p>
+        </div>
+        
+        <!-- БЛОК 1: КОНВЕРТЕР ДЛИНЫ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">📐 Конвертер длины</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Конвертация между метрическими и имперскими единицами</div>
+                
+                <div class="tool-tip">💡 Пояснение: 1 м = 100 см = 1000 мм = 39.37 дюймов</div>
+                
+                <label>Из:</label>
+                <select id="length-from">
+                    <option value="m">Метры (м)</option>
+                    <option value="cm">Сантиметры (см)</option>
+                    <option value="mm">Миллиметры (мм)</option>
+                    <option value="km">Километры (км)</option>
+                    <option value="inch">Дюймы (in)</option>
+                    <option value="feet">Футы (ft)</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="length-to">
+                    <option value="cm">Сантиметры (см)</option>
+                    <option value="m">Метры (м)</option>
+                    <option value="mm">Миллиметры (мм)</option>
+                    <option value="km">Километры (км)</option>
+                    <option value="inch">Дюймы (in)</option>
+                    <option value="feet">Футы (ft)</option>
+                </select>
+                
+                <label>Значение:</label>
+                <input type="number" min="0" step="any" id="length-value" placeholder="Например: 100">
+                
+                <button class="btn" id="calcLengthBtn">КОНВЕРТИРОВАТЬ</button>
+                <div id="res-length" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА КОНВЕРТАЦИИ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Таблица конвертации</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Единица</th><th>В метрах</th><th>В сантиметрах</th><th>В дюймах</th></tr>
+                    <tr><td>1 метр</td><td>1.000</td><td>100.00</td><td>39.37</td></tr>
+                    <tr><td>1 сантиметр</td><td>0.010</td><td>1.00</td><td>0.3937</td></tr>
+                    <tr><td>1 миллиметр</td><td>0.001</td><td>0.10</td><td>0.03937</td></tr>
+                    <tr><td>1 километр</td><td>1000.0</td><td>100000</td><td>39370</td></tr>
+                    <tr><td>1 дюйм</td><td>0.0254</td><td>2.54</td><td>1.00</td></tr>
+                    <tr><td>1 фут</td><td>0.3048</td><td>30.48</td><td>12.00</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ОБЪЕМ (ЭКРАН 7) ======================= -->
+    <div id="vol" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>📦 КОНВЕРТЕР ОБЪЕМА</b>
+            <p>Конвертация единиц объема и емкости</p>
+        </div>
+        
+        <!-- БЛОК 1: КОНВЕРТЕР ОБЪЕМА -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">🧪 Конвертер объема</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Конвертация между различными единицами объема</div>
+                
+                <div class="tool-tip">💡 Пояснение: 1 м³ = 1000 л = 1 000 000 мл</div>
+                
+                <label>Из:</label>
+                <select id="volume-from">
+                    <option value="m3">Кубические метры (м³)</option>
+                    <option value="l">Литр</option>
+                    <option value="ml">Миллилитр (мл)</option>
+                    <option value="cm3">Кубические сантиметры (см³)</option>
+                    <option value="gal">Галлоны US (gal)</option>
+                </select>
+                
+                <label>В:</label>
+                <select id="volume-to">
+                    <option value="l">Литр (л)</option>
+                    <option value="m3">Кубические метры (м³)</option>
+                    <option value="ml">Миллилитр (мл)</option>
+                    <option value="cm3">Кубические сантиметры (см³)</option>
+                    <option value="gal">Галлоны US (gal)</option>
+                </select>
+                
+                <label>Значение:</label>
+                <input type="number" min="0" step="any" id="volume-value" placeholder="Например: 1000">
+                
+                <button class="btn" id="calcVolumeBtn">КОНВЕРТИРОВАТЬ</button>
+                <div id="res-volume" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА ОБЪЕМОВ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Таблица конвертации объема</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Единица</th><th>В литрах</th><th>В м³</th><th>В галлонах US</th></tr>
+                    <tr><td>1 литр</td><td>1.000</td><td>0.001</td><td>0.264</td></tr>
+                    <tr><td>1 м³</td><td>1000.0</td><td>1.000</td><td>264.17</td></tr>
+                    <tr><td>1 миллилитр</td><td>0.001</td><td>0.000001</td><td>0.000264</td></tr>
+                    <tr><td>1 галлон US</td><td>3.785</td><td>0.003785</td><td>1.000</td></tr>
+                    <tr><td>1 баррель нефти</td><td>158.99</td><td>0.159</td><td>42.00</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ИНСТРУМЕНТЫ (ЭКРАН 8) ======================= -->
+    <div id="tools" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>⚙️ ИНЖЕНЕРНЫЕ ИНСТРУМЕНТЫ</b>
+            <p>Специализированные калькуляторы и утилиты</p>
+        </div>
+        
+        <div class="info-box">
+            <span class="category-icon">📖</span>
+            <b>Инструкция:</b> Выберите инструмент → используйте для расчетов в вашей области
+        </div>
+        
+        <!-- СЕТКА ИНСТРУМЕНТОВ -->
+        <div class="grid">
+            <div class="tile" data-screen="circuit-breakers">
+                <span class="tile-icon">🔌</span>
+                АВТОМАТЫ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Подбор защитных автоматов</div>
+            </div>
+            
+            <div class="tile" data-screen="resistor-codes">
+                <span class="tile-icon">🎨</span>
+                РЕЗИСТОРЫ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Цветовые коды</div>
+            </div>
+            
+            <div class="tile" data-screen="ups-calc">
+                <span class="tile-icon">🔋</span>
+                ИБП/АКБ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет автономии</div>
+            </div>
+            
+            <div class="tile" data-screen="grounding">
+                <span class="tile-icon">⚡</span>
+                ЗАЗЕМЛЕНИЕ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет сопротивления</div>
+            </div>
+            
+            <div class="tile" data-screen="busbars">
+                <span class="tile-icon">📏</span>
+                ШИНЫ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Расчет шинопроводов</div>
+            </div>
+            
+            <div class="tile" data-screen="templates">
+                <span class="tile-icon">📋</span>
+                ШАБЛОНЫ
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:5px;">Сохранение расчетов</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= АВТОМАТЫ (ЭКРАН 9) ======================= -->
+    <div id="circuit-breakers" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>🔌 ПОДБОР АВТОМАТИЧЕСКИХ ВЫКЛЮЧАТЕЛЕЙ</b>
+            <p>Расчет и подбор защитных автоматов</p>
+        </div>
+        
+        <!-- БЛОК 1: ПОДБОР АВТОМАТА -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Калькулятор подбора автомата</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет номинала автомата по току нагрузки</div>
+                
+                <div class="tool-tip">💡 Пояснение: Номинал автомата должен быть на 10-20% больше тока нагрузки</div>
+                
+                <label>Ток нагрузки, А:</label>
+                <input type="number" min="0" step="any" id="breaker-current" placeholder="Например: 16">
+                
+                <label>Тип нагрузки:</label>
+                <select id="breaker-load-type">
+                    <option value="resistive">Активная (лампы, нагреватели)</option>
+                    <option value="inductive">Индуктивная (двигатели)</option>
+                    <option value="mixed">Смешанная</option>
+                </select>
+                
+                <label>Характеристика срабатывания:</label>
+                <select id="breaker-characteristic">
+                    <option value="B">B (3-5×Iн) - Освещение, розетки</option>
+                    <option value="C">C (5-10×Iн) - Двигатели, трансформаторы</option>
+                    <option value="D">D (10-20×Iн) - Промышленность</option>
+                </select>
+                
+                <label>Температура окружающей среды:</label>
+                <select id="breaker-temperature">
+                    <option value="30">30°C (стандартная)</option>
+                    <option value="40">40°C (жарко)</option>
+                    <option value="50">50°C (очень жарко)</option>
+                </select>
+                
+                <button class="btn" id="calcBreakerBtn">ПОДОБРАТЬ АВТОМАТ</button>
+                <div id="res-breaker" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА АВТОМАТОВ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Стандартные номиналы автоматов</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Номинал</th><th>Нагрузка (220В)</th><th>Применение</th></tr>
+                    <tr><td>6А</td><td>1.3 кВт</td><td>Освещение</td></tr>
+                    <tr><td>10А</td><td>2.2 кВт</td><td>Розетки</td></tr>
+                    <tr><td>16А</td><td>3.5 кВт</td><td>Розетки, кондиционеры</td></tr>
+                    <tr><td>20А</td><td>4.4 кВт</td><td>Электроплиты</td></tr>
+                    <tr><td>25А</td><td>5.5 кВт</td><td>Вводные</td></tr>
+                    <tr><td>32А</td><td>7.0 кВт</td><td>Вводные, котлы</td></tr>
+                    <tr><td>40А</td><td>8.8 кВт</td><td>Вводные линии</td></tr>
+                    <tr><td>50А</td><td>11.0 кВт</td><td>Большие нагрузки</td></tr>
+                    <tr><td>63А</td><td>13.9 кВт</td><td>Промышленность</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= РЕЗИСТОРЫ (ЭКРАН 10) ======================= -->
+    <div id="resistor-codes" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>🎨 ЦВЕТОВЫЕ КОДЫ РЕЗИСТОРОВ</b>
+            <p>Определение номинала по цветным полосам</p>
+        </div>
+        
+        <!-- БЛОК 1: 4-ПОЛОСНЫЙ РЕЗИСТОР -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">4-полосный резистор</div>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Наиболее распространенный тип маркировки</div>
+                
+                <div class="tool-tip">💡 Пояснение: 1-я и 2-я полосы - цифры, 3-я - множитель, 4-я - точность</div>
+                
+                <!-- ВИЗУАЛИЗАЦИЯ РЕЗИСТОРА -->
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: var(--bg-tertiary); padding: 20px; border-radius: 10px; overflow: hidden;">
+                    <div class="resistor-band" style="background: #964B00; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                    <div class="resistor-band" style="background: #000000; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                    <div class="resistor-band" style="background: #FF0000; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                    <div class="resistor-band" style="background: #FFD700; width: 30px; height: 60px; border-radius: 5px; flex-shrink: 0;"></div>
+                </div>
+                
+                <label>Первая полоса (1 цифра):</label>
+                <select id="band1">
+                    <option value="0" style="background: #000; color: white;">0 - Черный</option>
+                    <option value="1" style="background: #964B00; color: white;" selected>1 - Коричневый</option>
+                    <option value="2" style="background: #FF0000; color: white;">2 - Красный</option>
+                    <option value="3" style="background: #FFA500; color: black;">3 - Оранжевый</option>
+                    <option value="4" style="background: #FFFF00; color: black;">4 - Желтый</option>
+                    <option value="5" style="background: #008000; color: white;">5 - Зеленый</option>
+                    <option value="6" style="background: #0000FF; color: white;">6 - Синий</option>
+                    <option value="7" style="background: #800080; color: white;">7 - Фиолетовый</option>
+                    <option value="8" style="background: #808080; color: white;">8 - Серый</option>
+                    <option value="9" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">9 - Белый</option>
+                </select>
+                
+                <label>Вторая полоса (2 цифра):</label>
+                <select id="band2">
+                    <option value="0" style="background: #000; color: white;" selected>0 - Черный</option>
+                    <option value="1" style="background: #964B00; color: white;">1 - Коричневый</option>
+                    <option value="2" style="background: #FF0000; color: white;">2 - Красный</option>
+                    <option value="3" style="background: #FFA500; color: black;">3 - Оранжевый</option>
+                    <option value="4" style="background: #FFFF00; color: black;">4 - Желтый</option>
+                    <option value="5" style="background: #008000; color: white;">5 - Зеленый</option>
+                    <option value="6" style="background: #0000FF; color: white;">6 - Синий</option>
+                    <option value="7" style="background: #800080; color: white;">7 - Фиолетовый</option>
+                    <option value="8" style="background: #808080; color: white;">8 - Серый</option>
+                    <option value="9" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">9 - Белый</option>
+                </select>
+                
+                <label>Третья полоса (множитель):</label>
+                <select id="band3">
+                    <option value="1" style="background: #000; color: white;">×1 - Черный</option>
+                    <option value="10" style="background: #964B00; color: white;">×10 - Коричневый</option>
+                    <option value="100" style="background: #FF0000; color: white;" selected>×100 - Красный</option>
+                    <option value="1000" style="background: #FFA500; color: black;">×1k - Оранжевый</option>
+                    <option value="10000" style="background: #FFFF00; color: black;">×10k - Желтый</option>
+                    <option value="100000" style="background: #008000; color: white;">×100k - Зеленый</option>
+                    <option value="1000000" style="background: #0000FF; color: white;">×1M - Синий</option>
+                    <option value="10000000" style="background: #800080; color: white;">×10M - Фиолетовый</option>
+                    <option value="0.1" style="background: #808080; color: white;">×0.1 - Серый</option>
+                    <option value="0.01" style="background: #FFFFFF; color: black; border: 1px solid #ccc;">×0.01 - Белый</option>
+                </select>
+                
+                <label>Четвертая полоса (точность):</label>
+                <select id="band4">
+                    <option value="1" style="background: #964B00; color: white;">±1% - Коричневый</option>
+                    <option value="2" style="background: #FF0000; color: white;">±2% - Красный</option>
+                    <option value="0.5" style="background: #008000; color: white;">±0.5% - Зеленый</option>
+                    <option value="0.25" style="background: #0000FF; color: white;">±0.25% - Синий</option>
+                    <option value="0.1" style="background: #800080; color: white;">±0.1% - Фиолетовый</option>
+                    <option value="5" style="background: #FFD700; color: black;" selected>±5% - Золотой</option>
+                    <option value="10" style="background: #C0C0C0; color: black;">±10% - Серебряный</option>
+                </select>
+                
+                <button class="btn" id="calcResistorBtn">РАССЧИТАТЬ НОМИНАЛ</button>
+                <div id="res-resistor" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА ЦВЕТОВЫХ КОДОВ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Таблица цветовых кодов</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Цвет</th><th>Цифра</th><th>Множитель</th><th>Точность</th></tr>
+                    <tr><td style="background:#000;color:white;">Черный</td><td>0</td><td>×1</td><td>-</td></tr>
+                    <tr><td style="background:#964B00;color:white;">Коричневый</td><td>1</td><td>×10</td><td>±1%</td></tr>
+                    <tr><td style="background:#FF0000;color:white;">Красный</td><td>2</td><td>×100</td><td>±2%</td></tr>
+                    <tr><td style="background:#FFA500;color:black;">Оранжевый</td><td>3</td><td>×1k</td><td>-</td></tr>
+                    <tr><td style="background:#FFFF00;color:black;">Желтый</td><td>4</td><td>×10k</td><td>-</td></tr>
+                    <tr><td style="background:#008000;color:white;">Зеленый</td><td>5</td><td>×100k</td><td>±0.5%</td></tr>
+                    <tr><td style="background:#0000FF;color:white;">Синий</td><td>6</td><td>×1M</td><td>±0.25%</td></tr>
+                    <tr><td style="background:#800080;color:white;">Фиолетовый</td><td>7</td><td>×10M</td><td>±0.1%</td></tr>
+                    <tr><td style="background:#808080;color:white;">Серый</td><td>8</td><td>×0.1</td><td>-</td></tr>
+                    <tr><td style="background:#FFF;color:black;border:1px solid #ccc;">Белый</td><td>9</td><td>×0.01</td><td>-</td></tr>
+                    <tr><td style="background:#FFD700;color:black;">Золотой</td><td>-</td><td>×0.1</td><td>±5%</td></tr>
+                    <tr><td style="background:#C0C0C0;color:black;">Серебряный</td><td>-</td><td>×0.01</td><td>±10%</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ИБП/АКБ (ЭКРАН 11) ======================= -->
+    <div id="ups-calc" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>🔋 РАСЧЕТ ИБП И АККУМУЛЯТОРОВ</b>
+            <p>Расчет времени автономии и емкости АКБ</p>
+        </div>
+        
+        <!-- БЛОК 1: РАСЧЕТ АВТОНОМИИ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Калькулятор автономии</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет времени работы от аккумуляторов</div>
+                
+                <div class="tool-tip">💡 Пояснение: Время = (Емкость × Напряжение × КПД) / Мощность</div>
+                
+                <label>Мощность нагрузки, Вт:</label>
+                <input type="number" min="0" step="any" id="ups-power" placeholder="Например: 500">
+                
+                <label>Напряжение АКБ, В:</label>
+                <select id="ups-voltage">
+                    <option value="12">12В</option>
+                    <option value="24">24В</option>
+                    <option value="48">48В</option>
+                </select>
+                
+                <label>Емкость АКБ, А·ч:</label>
+                <input type="number" min="0" step="any" id="ups-capacity" placeholder="Например: 100">
+                
+                <label>Количество АКБ в батарее:</label>
+                <input type="number" min="1" step="1" id="ups-count" placeholder="Например: 2" value="1">
+                
+                <label>КПД ИБП, %:</label>
+                <select id="ups-efficiency">
+                    <option value="85">85% (обычный)</option>
+                    <option value="92">92% (хороший)</option>
+                    <option value="95">95% (высокий)</option>
+                </select>
+                
+                <label>Глубина разряда, %:</label>
+                <select id="ups-discharge">
+                    <option value="50">50% (AGM, гелевые)</option>
+                    <option value="70">70% (качественные)</option>
+                    <option value="80">80% (литиевые)</option>
+                </select>
+                
+                <button class="btn" id="calcUpsBtn">РАССЧИТАТЬ ВРЕМЯ</button>
+                <div id="res-ups" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ЗАЗЕМЛЕНИЕ (ЭКРАН 12) ======================= -->
+    <div id="grounding" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>⚡ РАСЧЕТ ЗАЗЕМЛЕНИЯ</b>
+            <p>Расчет сопротивления заземляющих устройств</p>
+        </div>
+        
+        <!-- БЛОК 1: РАСЧЕТ ЗАЗЕМЛИТЕЛЯ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Расчет одиночного заземлителя</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Расчет сопротивления вертикального заземлителя</div>
+                
+                <div class="tool-tip">💡 Пояснение: R = (ρ / (2πL)) × ln(4L/d) для стержневого заземлителя</div>
+                
+                <label>Длина заземлителя, м:</label>
+                <input type="number" min="0.1" step="any" id="ground-length" placeholder="Например: 2.5" value="2.5">
+                
+                <label>Диаметр заземлителя, мм:</label>
+                <input type="number" min="1" step="any" id="ground-diameter" placeholder="Например: 16" value="16">
+                
+                <label>Глубина заложения, м:</label>
+                <input type="number" min="0" step="any" id="ground-depth" placeholder="Например: 0.7" value="0.7">
+                
+                <label>Удельное сопротивление грунта, Ом·м:</label>
+                <select id="ground-soil">
+                    <option value="100">100 Ом·м - Чернозем, глина</option>
+                    <option value="300" selected>300 Ом·м - Суглинок</option>
+                    <option value="500">500 Ом·м - Песок</option>
+                    <option value="1000">1000 Ом·м - Каменистый</option>
+                </select>
+                
+                <label>Тип заземлителя:</label>
+                <select id="ground-type">
+                    <option value="rod">Стержневой (круглый)</option>
+                    <option value="angle">Уголковая сталь</option>
+                    <option value="strip">Полоса</option>
+                </select>
+                
+                <button class="btn" id="calcGroundBtn">РАССЧИТАТЬ СОПРОТИВЛЕНИЕ</button>
+                <div id="res-ground" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА НОРМ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Нормы сопротивления заземления</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Объект</th><th>Макс. сопротивление</th><th>Нормативный документ</th></tr>
+                    <tr><td>Жилые дома (220/380В)</td><td>30 Ом</td><td>ПУЭ 1.7.103</td></tr>
+                    <tr><td>Промпредприятия (до 1000В)</td><td>10 Ом</td><td>ПУЭ 1.7.101</td></tr>
+                    <tr><td>Подстанции 110 кВ</td><td>0.5 Ом</td><td>ПУЭ 1.7.90</td></tr>
+                    <tr><td>Грозозащита</td><td>10 Ом</td><td>РД 34.21.122-87</td></tr>
+                    <tr><td>ИТ сеть (медицина)</td><td>2 Ом</td><td>ПУЭ 1.7.104</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ШИНЫ (ЭКРАН 13) ======================= -->
+    <div id="busbars" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>📏 РАСЧЕТ ШИН И ШИНОПРОВОДОВ</b>
+            <p>Подбор шин по току, расчет допустимой нагрузки</p>
+        </div>
+        
+        <!-- БЛОК 1: РАСЧЕТ ШИНЫ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Расчет шины по току</div>
+                <button class="favorite-btn">☆</button>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Подбор медной или алюминиевой шины</div>
+                
+                <div class="tool-tip">💡 Пояснение: Допустимый ток зависит от материала, сечения и расположения шины</div>
+                
+                <label>Ток нагрузки, А:</label>
+                <input type="number" min="0" step="any" id="busbar-current" placeholder="Например: 1000">
+                
+                <label>Материал шины:</label>
+                <select id="busbar-material">
+                    <option value="copper">Медь</option>
+                    <option value="aluminum">Алюминий</option>
+                </select>
+                
+                <label>Расположение шин:</label>
+                <select id="busbar-position">
+                    <option value="vertical">Вертикально (ребром)</option>
+                    <option value="horizontal">Горизонтально (плашмя)</option>
+                </select>
+                
+                <label>Количество шин в фазе:</label>
+                <select id="busbar-count">
+                    <option value="1">1 шина</option>
+                    <option value="2">2 шины</option>
+                    <option value="3">3 шины</option>
+                </select>
+                
+                <label>Температура окружающей среды:</label>
+                <select id="busbar-temp">
+                    <option value="25">25°C (нормальная)</option>
+                    <option value="35">35°C (повышенная)</option>
+                    <option value="45">45°C (высокая)</option>
+                </select>
+                
+                <button class="btn" id="calcBusbarBtn">ПОДОБРАТЬ ШИНУ</button>
+                <div id="res-busbar" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА ШИН -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">📋 Стандартные размеры шин</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Размер, мм</th><th>Площадь, мм²</th><th>Медь, А</th><th>Алюминий, А</th></tr>
+                    <tr><td>15×3</td><td>45</td><td>210</td><td>165</td></tr>
+                    <tr><td>20×3</td><td>60</td><td>275</td><td>215</td></tr>
+                    <tr><td>25×3</td><td>75</td><td>340</td><td>265</td></tr>
+                    <tr><td>30×4</td><td>120</td><td>475</td><td>370</td></tr>
+                    <tr><td>40×4</td><td>160</td><td>625</td><td>490</td></tr>
+                    <tr><td>50×5</td><td>250</td><td>860</td><td>675</td></tr>
+                    <tr><td>60×6</td><td>360</td><td>1125</td><td>880</td></tr>
+                    <tr><td>80×8</td><td>640</td><td>1680</td><td>1320</td></tr>
+                </table>
+                <div class="hint">* Токи указаны для одиночной шины при +25°C, расположенной вертикально</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ШАБЛОНЫ (ЭКРАН 14) ======================= -->
+    <div id="templates" class="screen">
+        <div class="back-btn" data-screen="tools">← НАЗАД К ИНСТРУМЕНТАМ</div>
+        
+        <div class="intro">
+            <b>📋 ШАБЛОНЫ И СОХРАНЕНИЕ РАСЧЕТОВ</b>
+            <p>Сохранение часто используемых наборов параметров</p>
+        </div>
+        
+        <!-- БЛОК 1: МОИ ШАБЛОНЫ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Мои шаблоны</div>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Здесь можно сохранять часто используемые расчеты</div>
+                
+                <!-- ДИНАМИЧЕСКИЙ СПИСОК ШАБЛОНОВ -->
+                <div id="templates-list">
+                    <div class="info-box">
+                        <b>Шаблонов пока нет</b><br>
+                        Чтобы создать шаблон, выполните расчет и нажмите кнопку "СОХРАНИТЬ ШАБЛОН"
+                    </div>
+                </div>
+                
+                <button class="btn" id="saveTemplateBtn" style="margin-top: 20px;">💾 СОХРАНИТЬ ТЕКУЩИЙ РАСЧЕТ</button>
+                <button class="btn" id="clearTemplatesBtn" style="background:#333; color:#ff9800; margin-top:10px;">🗑️ ОЧИСТИТЬ ВСЕ ШАБЛОНЫ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ЧЕРНОВИК (ЭКРАН 15) ======================= -->
+    <div id="draft" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>📝 ЧЕРНОВИК И ЗАМЕТКИ</b>
+            <p>Временные записи и быстрые расчеты</p>
+        </div>
+        
+        <!-- БЛОК 1: ТЕКСТОВЫЙ РЕДАКТОР -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Текстовый редактор</div>
+            </div>
+            <div class="acc-content">
+                <div class="hint">Записывайте формулы, расчеты, заметки</div>
+                
+                <!-- БОЛЬШОЕ ТЕКСТОВОЕ ПОЛЕ ДЛЯ ЗАМЕТОК -->
+                <textarea id="draft-text" placeholder="Введите ваши заметки, формулы, расчеты здесь...">Пример: 
+Кабель ВВГнг 3×2.5
+Длина: 25 м
+Ток: 16 А
+ΔU = (2 × 25 × 16 × 0.0175) / 2.5 = 5.6 В (2.55%)
+
+Автомат: 16А C
+Сечение подходит ✅</textarea>
+                
+                <button class="btn" id="saveDraftBtn">💾 СОХРАНИТЬ ЧЕРНОВИК</button>
+                <button class="btn" id="clearDraftBtn" style="background:#333; color:#ff9800; margin-top:10px;">🗑️ ОЧИСТИТЬ ЧЕРНОВИК</button>
+                <div id="res-draft" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ДОНАТ (ЭКРАН 16) ======================= -->
+    <div id="donate" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>❤️ ПОДДЕРЖАТЬ РАЗРАБОТЧИКА</b>
+            <p>Если приложение помогло вам в работе</p>
+        </div>
+        
+        <div class="donate-container">
+            <div class="hint">Поддержите дальнейшее развитие приложения</div>
+            
+            <!-- QR-КОД ДЛЯ ОПЛАТЫ (donate.png) -->
+            <img src="donate.png" class="qr-code" alt="QR для доната" onerror="this.style.display='none'">
+            
+            <!-- РЕКВИЗИТЫ КАРТ -->
+            <div class="donate-text">
+                <p><b>Сбербанк:</b> <span style="font-family:monospace;">2202 2061 6763 7706</span></p>
+                <p><b>Тинькофф:</b> <span style="font-family:monospace;">220 7020 9373 4650</span></p>
+                <p><b>Газпром:</b> <span style="font-family:monospace;">2200 0127 7928 0238</span></p>
+                <p><b>Альфа Банк:</b> <span style="font-family:monospace;">2200 1536 9958 9371</span></p>
+                <p style="margin-top:20px;"><i>Спасибо за вашу поддержку! 🙏</i></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= СПРАВОЧНИК (ЭКРАН 17) ======================= -->
+    <div id="reference" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>📚 СПРАВОЧНЫЕ ТАБЛИЦЫ И ДАННЫЕ</b>
+            <p>Полезные таблицы для инженеров</p>
+        </div>
+        
+        <!-- БЛОК 1: ТАБЛИЦА СЕЧЕНИЙ -->
+        <div class="acc-item open">
+            <div class="acc-header">
+                <div class="acc-header-text">Таблица сечений кабеля</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Сечение, мм²</th><th>Медь, А</th><th>Алюминий, А</th><th>Мощность 220В</th><th>Мощность 380В</th></tr>
+                    <tr><td>1.5</td><td>19</td><td>15</td><td>4.1 кВт</td><td>7.2 кВт</td></tr>
+                    <tr><td>2.5</td><td>27</td><td>21</td><td>5.9 кВт</td><td>10.3 кВт</td></tr>
+                    <tr><td>4</td><td>38</td><td>29</td><td>8.3 кВт</td><td>14.4 кВт</td></tr>
+                    <tr><td>6</td><td>46</td><td>36</td><td>10.1 кВт</td><td>17.5 кВт</td></tr>
+                    <tr><td>10</td><td>68</td><td>50</td><td>15.0 кВт</td><td>25.9 кВт</td></tr>
+                    <tr><td>16</td><td>90</td><td>70</td><td>19.8 кВт</td><td>34.2 кВт</td></tr>
+                    <tr><td>25</td><td>115</td><td>90</td><td>25.3 кВт</td><td>43.8 кВт</td></tr>
+                    <tr><td>35</td><td>140</td><td>110</td><td>30.8 кВт</td><td>53.4 кВт</td></tr>
+                    <tr><td>50</td><td>175</td><td>135</td><td>38.5 кВт</td><td>66.5 кВт</td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- БЛОК 2: ТАБЛИЦА ТЕМПЕРАТУР -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">Таблица температур</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>°C</th><th>°F</th><th>K</th><th>Описание</th></tr>
+                    <tr><td>-40</td><td>-40</td><td>233.15</td><td>Экстремальный холод</td></tr>
+                    <tr><td>0</td><td>32</td><td>273.15</td><td>Температура замерзания воды</td></tr>
+                    <tr><td>20</td><td>68</td><td>293.15</td><td>Комнатная температура</td></tr>
+                    <tr><td>37</td><td>98.6</td><td>310.15</td><td>Температура тела</td></tr>
+                    <tr><td>100</td><td>212</td><td>373.15</td><td>Температура кипения воды</td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- БЛОК 3: ТАБЛИЦА НАПРЯЖЕНИЙ -->
+        <div class="acc-item">
+            <div class="acc-header">
+                <div class="acc-header-text">Таблица напряжений</div>
+            </div>
+            <div class="acc-content">
+                <table>
+                    <tr><th>Напряжение</th><th>Применение</th><th>Страны</th></tr>
+                    <tr><td>110-127В</td><td>Бытовая сеть</td><td>США, Канада, Япония</td></tr>
+                    <tr><td>220-240В</td><td>Бытовая сеть</td><td>Россия, Европа, Китай</td></tr>
+                    <tr><td>380-400В</td><td>Промышленная 3-фазная</td><td>Россия, Европа</td></tr>
+                    <tr><td>480В</td><td>Промышленная 3-фазная</td><td>США</td></tr>
+                    <tr><td>600В</td><td>Промышленность</td><td>Канада</td></tr>
+                    <tr><td>6-35 кВ</td><td>Распределительные сети</td><td>Все страны</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ИЗБРАННОЕ (ЭКРАН 18) ======================= -->
+    <div id="favorites" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>⭐ ИЗБРАННЫЕ КАЛЬКУЛЯТОРЫ</b>
+            <p>Быстрый доступ к часто используемым расчетам</p>
+        </div>
+        
+        <!-- ДИНАМИЧЕСКИЙ СПИСОК ИЗБРАННОГО -->
+        <div id="favorites-list">
+            <div class="info-box">
+                <b>Избранных калькуляторов пока нет</b><br>
+                Нажмите ☆ на любом калькуляторе, чтобы добавить его сюда
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= ИСТОРИЯ (ЭКРАН 19) ======================= -->
+    <div id="history" class="screen">
+        <div class="back-btn" data-screen="menu">← НАЗАД К МЕНЮ</div>
+        
+        <div class="intro">
+            <b>📊 ИСТОРИЯ РАСЧЕТОВ</b>
+            <p>Последние 20 выполненных расчетов</p>
+        </div>
+        
+        <!-- ДИНАМИЧЕСКИЙ СПИСОК ИСТОРИИ -->
+        <div id="history-list">
+            <div class="info-box">
+                <b>История расчетов пока пуста</b><br>
+                Здесь будут отображаться ваши последние расчеты
+            </div>
+        </div>
+        
+        <button class="btn" id="clearHistoryBtn" style="background:#333; color:#ff9800; margin-top:20px;">🗑️ ОЧИСТИТЬ ВСЮ ИСТОРИЮ</button>
+    </div>
+
+    <!-- ПОДКЛЮЧЕНИЕ JAVASCRIPT -->
+    <script src="script.js"></script>
+</body>
+</html>

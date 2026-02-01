@@ -1,0 +1,28 @@
+{
+    "name": "MasterCalc PRO",
+    "short_name": "MasterCalc",
+    "description": "Инженерный калькулятор для электриков, КИПовцев, монтажников",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#ff9800",
+    "orientation": "portrait",
+    "scope": "./",
+    "categories": ["utilities", "productivity"],
+    "lang": "ru-RU",
+    "dir": "ltr",
+    "icons": [
+        {
+            "src": "icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

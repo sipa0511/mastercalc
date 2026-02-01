@@ -1,0 +1,637 @@
+/* 
+  MasterCalc PRO - ФАЙЛ СТИЛЕЙ
+  Определяет цвета, размеры, шрифты и анимации всего приложения
+*/
+
+/* ================= CSS ПЕРЕМЕННЫЕ ДЛЯ ТЕМ ================= */
+:root {
+    /* ЦВЕТОВАЯ ПАЛИТРА ДЛЯ ТЕМНОЙ ТЕМЫ (ПО УМОЛЧАНИЮ) */
+    --primary-color: #ff9800;        /* ОСНОВНОЙ ЦВЕТ (ОРАНЖЕВЫЙ) */
+    --primary-dark: #f57c00;         /* ТЕМНЫЙ ОРАНЖЕВЫЙ ДЛЯ ХОВЕРОВ */
+    --primary-light: #ffb74d;        /* СВЕТЛЫЙ ОРАНЖЕВЫЙ */
+    --bg-color: #121212;             /* ФОН ТЕМНОЙ ТЕМЫ */
+    --bg-secondary: #1e1e1e;         /* ВТОРИЧНЫЙ ФОН (КАРТОЧКИ) */
+    --bg-tertiary: #252525;          /* ТРЕТИЧНЫЙ ФОН (АККОРДЕОНЫ) */
+    --text-color: #ffffff;           /* ОСНОВНОЙ ЦВЕТ ТЕКСТА */
+    --text-secondary: #bbbbbb;       /* ВТОРИЧНЫЙ ТЕКСТ */
+    --text-disabled: #666666;        /* НЕАКТИВНЫЙ ТЕКСТ */
+    --border-color: #333333;         /* ЦВЕТ ГРАНИЦ */
+    --success-color: #2e7d32;        /* ЦВЕТ УСПЕХА (ЗЕЛЕНЫЙ) */
+    --success-light: #4caf50;        /* СВЕТЛЫЙ ЗЕЛЕНЫЙ */
+    --shadow-color: rgba(0, 0, 0, 0.5); /* ТЕНЬ ЭЛЕМЕНТОВ */
+    --transition-speed: 0.3s;        /* СКОРОСТЬ АНИМАЦИЙ */
+    --border-radius: 16px;           /* СКРУГЛЕНИЕ УГЛОВ */
+    --error-color: #f44336;          /* ЦВЕТ ОШИБОК (КРАСНЫЙ) */
+}
+
+/* СВЕТЛАЯ ТЕМА (АКТИВИРУЕТСЯ ПРИ ДОБАВЛЕНИИ КЛАССА .theme-light К body) */
+.theme-light {
+    --bg-color: #f5f5f5;             /* СВЕТЛЫЙ ФОН */
+    --bg-secondary: #ffffff;         /* БЕЛЫЕ КАРТОЧКИ */
+    --bg-tertiary: #f0f0f0;          /* СВЕТЛО-СЕРЫЙ ФОН */
+    --text-color: #000000;           /* ЧЕРНЫЙ ТЕКСТ */
+    --text-secondary: #444444;       /* ТЕМНО-СЕРЫЙ ТЕКСТ */
+    --text-disabled: #888888;        /* СЕРЫЙ НЕАКТИВНЫЙ */
+    --border-color: #dddddd;         /* СВЕТЛАЯ ГРАНИЦА */
+    --shadow-color: rgba(0, 0, 0, 0.1); /* ЛЕГКАЯ ТЕНЬ */
+    --error-color: #d32f2f;          /* ТЕМНО-КРАСНЫЙ ДЛЯ ОШИБОК */
+}
+
+/* ================= БАЗОВЫЕ СТИЛИ ================= */
+* {
+    /* ФИКС ДЛЯ КАСАНИЙ НА МОБИЛЬНЫХ УСТРОЙСТВАХ */
+    -webkit-tap-highlight-color: rgba(255,152,0,0.3);
+    touch-action: manipulation;      /* УЛУЧШАЕТ ОТЗЫВЧИВОСТЬ КАСАНИЙ */
+    
+    /* ПЛАВНЫЕ ПЕРЕХОДЫ ДЛЯ ЦВЕТОВ И ГРАНИЦ */
+    transition: background-color var(--transition-speed) ease,
+                color var(--transition-speed) ease,
+                border-color var(--transition-speed) ease;
+    
+    box-sizing: border-box;          /* УЧИТЫВАЕТ PADDING В ШИРИНЕ */
+    max-width: 100%;                 /* ПРЕДОТВРАЩАЕТ ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ */
+}
+
+/* СБРОС ОТСТУПОВ И ФИКСЫ ДЛЯ HTML И BODY */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;              /* БЛОКИРУЕМ ГОРИЗОНТАЛЬНЫЙ СКРОЛЛ */
+    position: relative;
+}
+
+/* ОСНОВНЫЕ СТИЛИ ТЕЛА ДОКУМЕНТА */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: var(--bg-color);     /* ДИНАМИЧЕСКИЙ ФОН ИЗ ПЕРЕМЕННЫХ */
+    color: var(--text-color);        /* ДИНАМИЧЕСКИЙ ЦВЕТ ТЕКСТА */
+    padding-bottom: 60px;            /* ОТСТУП ДЛЯ iOS SAFARI */
+    transition: background-color var(--transition-speed) ease;
+    -webkit-text-size-adjust: 100%;  /* ФИКС МАСШТАБИРОВАНИЯ ШРИФТОВ НА iOS */
+    -webkit-font-smoothing: antialiased; /* СГЛАЖИВАНИЕ ШРИФТОВ */
+    overflow-x: hidden;
+    width: 100vw;
+    
+    /* ФИКС ДЛЯ iPhone 15+ С DYNAMIC ISLAND */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    min-height: 100vh;
+}
+
+/* ================= ФИКСЫ ДЛЯ iOS SAFARI ================= */
+@supports (-webkit-touch-callout: none) {
+    body {
+        -webkit-overflow-scrolling: touch; /* ПЛАВНЫЙ СКРОЛЛ НА iOS */
+        padding-bottom: 80px;               /* БОЛЬШЕ ОТСТУПА СНИЗУ */
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: calc(60px + env(safe-area-inset-bottom));
+        min-height: -webkit-fill-available; /* ЗАПОЛНЯЕТ ВЕСЬ ЭКРАН */
+    }
+    
+    /* АДАПТИВНЫЕ ОТСТУПЫ ДЛЯ ЭКРАНОВ */
+    .screen {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+    }
+    
+    /* ФИКС ШАПКИ ДЛЯ DYNAMIC ISLAND */
+    header {
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+        padding-top: max(15px, env(safe-area-inset-top));
+    }
+}
+
+/* ================= АНИМАЦИИ ================= */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* АНИМАЦИЯ ДЛЯ ПОКАЗА РЕЗУЛЬТАТОВ */
+.screen {
+    display: none;                   /* ВСЕ ЭКРАНЫ СКРЫТЫ ПО УМОЛЧАНИЮ */
+    padding: 15px;
+    animation: fadeIn 0.3s ease-out; /* АНИМАЦИЯ ПОЯВЛЕНИЯ */
+    width: 100%;
+}
+
+/* КЛАСС ДЛЯ АКТИВНОГО ЭКРАНА */
+.active {
+    display: block;
+}
+
+/* ПЛАВНЫЕ АНИМАЦИИ ДЛЯ КНОПОК И КАРТОЧЕК */
+.tile, .btn, .menu-item, .acc-header {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+}
+
+/* ЭФФЕКТ НАЖАТИЯ ДЛЯ КНОПОК */
+.tile:active, .btn:active, .menu-item:active {
+    transform: scale(0.96);
+}
+
+/* АНИМАЦИЯ ДЛЯ РЕЗУЛЬТАТОВ РАСЧЕТОВ */
+.result {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* АНИМАЦИЯ ДЛЯ КОНТЕНТА АККОРДЕОНА */
+.acc-content {
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* ================= ШАПКА ПРИЛОЖЕНИЯ ================= */
+header {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;                /* ПРИКЛЕЕННАЯ ШАПКА */
+    top: 0;
+    z-index: 100;                    /* ПОВЕРХ ДРУГИХ ЭЛЕМЕНТОВ */
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+/* ЗАГОЛОВОК В ШАПКЕ */
+.header-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #000000;                  /* ЧЕРНЫЙ ТЕКСТ НА ОРАНЖЕВОМ ФОНЕ */
+    -webkit-user-select: none;       /* ЗАПРЕТ ВЫДЕЛЕНИЯ ТЕКСТА */
+    user-select: none;
+    white-space: nowrap;             /* ТЕКСТ В ОДНУ СТРОКУ */
+    overflow: hidden;                /* СКРЫТЬ ЛИШНЕЕ */
+    text-overflow: ellipsis;         /* ТРОЕТОЧИЕ ЕСЛИ ТЕКСТ НЕ ПОМЕЩАЕТСЯ */
+}
+
+/* КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 1.5rem;
+    padding: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    min-width: 44px;                 /* МИНИМАЛЬНЫЙ РАЗМЕР ДЛЯ КАСАНИЯ */
+    min-height: 44px;
+    flex-shrink: 0;                  /* НЕ СЖИМАЕТСЯ ПРИ НЕХВАТКЕ МЕСТА */
+}
+
+/* КНОПКА МЕНЮ */
+.menu-btn {
+    background: none;
+    border: none;
+    color: #000000;
+    font-size: 1.8rem;
+    padding: 10px;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+}
+
+/* ================= ОСНОВНЫЕ ЭЛЕМЕНТЫ ИНТЕРФЕЙСА ================= */
+.intro {
+    background: var(--bg-secondary);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.intro b {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.intro p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    word-wrap: break-word;          /* ПЕРЕНАСЫВАЕТ ДЛИННЫЕ СЛОВА */
+}
+
+/* СЕТКА ДЛЯ КАРТОЧЕК НА ГЛАВНОЙ СТРАНИЦЕ */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* ДВЕ КОЛОНКИ НА ШИРОКИХ ЭКРАНАХ */
+    gap: 12px;
+    width: 100%;
+}
+
+/* КАРТОЧКИ (ТАЙЛЫ) */
+.tile {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 22px 5px;
+    text-align: center;
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;               /* НЕЛЬЗЯ ВЫДЕЛИТЬ ТЕКСТ */
+    box-shadow: 0 4px 6px var(--shadow-color);
+    overflow: hidden;
+    word-break: break-word;          /* ПЕРЕНАСЫВАЕТ ДЛИННЫЕ СЛОВА */
+    min-width: 0;                    /* ФИКС ДЛЯ ГИБКИХ СЕТОК */
+}
+
+/* ЭФФЕКТ НАЖАТИЯ ДЛЯ КАРТОЧЕК */
+.tile:active {
+    background: var(--bg-tertiary);
+}
+
+/* ИКОНКИ В КАРТОЧКАХ */
+.tile-icon {
+    display: block;
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ================= АККОРДЕОНЫ (РАСКРЫВАЮЩИЕСЯ БЛОКИ) ================= */
+.acc-item {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeIn 0.4s ease-out;
+    width: 100%;
+}
+
+/* ЗАГОЛОВОК АККОРДЕОНА */
+.acc-header {
+    padding: 18px;
+    background: var(--bg-tertiary);
+    color: var(--primary-color);
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    min-width: 0;
+}
+
+/* КОНТЕНТ АККОРДЕОНА (СКРЫТ ПО УМОЛЧАНИЮ) */
+.acc-content {
+    padding: 18px;
+    display: none;
+    width: 100%;
+}
+
+/* КОГДА АККОРДЕОН ОТКРЫТ */
+.acc-item.open .acc-content {
+    display: block;
+}
+
+/* ================= ФОРМЫ И ПОЛЯ ВВОДА ================= */
+label {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* ОБЩИЕ СТИЛИ ДЛЯ ПОЛЕЙ ВВОДА */
+input, select, textarea {
+    width: 100%;
+    padding: 15px;
+    margin-top: 5px;
+    background: var(--text-color);
+    border: 1px solid var(--border-color);
+    color: var(--bg-color);
+    border-radius: 10px;
+    font-size: 16px;                 /* ФИКС ДЛЯ iOS ЧТОБЫ НЕ УВЕЛИЧИВАЛСЯ ШРИФТ */
+    transition: all 0.2s ease;
+    max-width: 100%;
+}
+
+/* СТИЛЬ ДЛЯ АКТИВНОГО ПОЛЯ ВВОДА */
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+    animation: pulse 0.3s ease;
+}
+
+/* ================= КНОПКИ ================= */
+.btn {
+    width: 100%;
+    padding: 18px;
+    margin-top: 15px;
+    background: var(--primary-color);
+    color: #000000;
+    border: none;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+/* ЭФФЕКТ НАЖАТИЯ ДЛЯ КНОПОК */
+.btn:active {
+    background: var(--primary-dark);
+}
+
+/* ================= БЛОКИ РЕЗУЛЬТАТОВ ================= */
+.result {
+    margin-top: 15px;
+    padding: 15px;
+    background: var(--success-color);
+    border-radius: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: none;                   /* ПО УМОЛЧАНИЮ СКРЫТ */
+    border: 1px solid var(--success-light);
+    animation: scaleIn 0.3s ease-out;
+    width: 100%;
+    word-break: break-word;
+}
+
+/* ПОДСКАЗКИ И ПОЯСНЕНИЯ */
+.hint {
+    background: var(--bg-tertiary);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-disabled);
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+
+/* ВЫДЕЛЕННЫЕ ПОДСКАЗКИ */
+.tool-tip {
+    background: var(--primary-color);
+    color: #000000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 0.85rem;
+    font-weight: bold;
+    word-break: break-word;
+}
+
+/* ИНФОРМАЦИОННЫЕ БЛОКИ */
+.info-box {
+    background: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-left: 4px solid var(--primary-color);
+    width: 100%;
+    word-break: break-word;
+}
+
+/* ================= НАВИГАЦИОННЫЕ КНОПКИ ================= */
+.back-btn {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* ================= ТАБЛИЦЫ ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;       /* УБИРАЕТ ПРОБЕЛЫ МЕЖДУ ЯЧЕЙКАМИ */
+    margin-top: 10px;
+    table-layout: fixed;             /* ФИКСИРОВАННАЯ ШИРИНА СТОЛБЦОВ */
+}
+
+td, th {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border-color);
+    word-break: break-word;          /* ПЕРЕНАСЫВАЕТ ДЛИННЫЕ СЛОВА */
+    overflow: hidden;
+    text-overflow: ellipsis;         /* ТРОЕТОЧИЕ ЕСЛИ НЕ ПОМЕЩАЕТСЯ */
+}
+
+/* ЗАГОЛОВКИ ТАБЛИЦ */
+th {
+    background: var(--bg-tertiary);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* ================= ВЫПАДАЮЩЕЕ МЕНЮ ================= */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);   /* ПОЛУПРОЗРАЧНЫЙ ЧЕРНЫЙ ФОН */
+    display: none;                   /* ПО УМОЛЧАНИЮ СКРЫТ */
+    z-index: 1000;                   /* ПОВЕРХ ВСЕХ ЭЛЕМЕНТОВ */
+    animation: fadeIn 0.2s ease-out;
+    overflow: hidden;
+}
+
+/* ДЛЯ СВЕТЛОЙ ТЕМЫ */
+.theme-light .menu-overlay {
+    background: rgba(0,0,0,0.85);   /* ЧУТЬ СВЕТЛЕЕ ДЛЯ СВЕТЛОЙ ТЕМЫ */
+}
+
+/* КОНТЕНТ МЕНЮ */
+.menu-content {
+    position: absolute;
+    top: 70px;
+    right: 15px;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    min-width: 250px;
+    max-width: calc(100vw - 30px);   /* НЕ ШИРЕ ЭКРАНА */
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    animation: slideIn 0.2s ease-out;
+}
+
+/* ПУНКТЫ МЕНЮ */
+.menu-item {
+    padding: 15px;
+    color: var(--text-color);
+    font-weight: bold;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: var(--bg-tertiary);
+    cursor: pointer;
+    user-select: none;
+    word-break: break-word;
+}
+
+/* ЭФФЕКТ НАЖАТИЯ ДЛЯ ПУНКТОВ МЕНЮ */
+.menu-item:active {
+    background: var(--border-color);
+}
+
+/* ================= ТЕКСТОВЫЕ ОБЛАСТИ ================= */
+textarea {
+    width: 100%;
+    height: 200px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    resize: vertical;                /* МОЖНО МЕНЯТЬ ТОЛЬКО ВЫСОТУ */
+}
+
+/* ================= QR-КОД ДЛЯ ДОНАТА ================= */
+.qr-code {
+    width: 250px;
+    height: 250px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px auto;
+    display: block;
+    animation: scaleIn 0.5s ease-out;
+    max-width: 100%;
+}
+
+/* КОНТЕЙНЕР ДЛЯ ДОНАТА */
+.donate-container {
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.donate-text {
+    color: var(--text-secondary);
+    margin-top: 20px;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+/* ================= КНОПКИ ИЗБРАННОГО ================= */
+.favorite-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+}
+
+/* КОГДА В ИЗБРАННОМ */
+.favorite-btn.active {
+    color: #ffd700;                  /* ЗОЛОТОЙ ЦВЕТ */
+    animation: pulse 0.3s ease;
+}
+
+/* ================= ИКОНКИ КАТЕГОРИЙ ================= */
+.category-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* ================= ФИКСЫ ДЛЯ ДЛИННОГО ТЕКСТА ================= */
+.acc-header-text {
+    flex: 1;
+    min-width: 0;                    /* ФИКС ДЛЯ ГИБКИХ КОНТЕЙНЕРОВ */
+    overflow: hidden;
+    text-overflow: ellipsis;         /* ТРОЕТОЧИЕ ДЛЯ ДЛИННОГО ТЕКСТА */
+    white-space: nowrap;             /* В ОДНУ СТРОКУ */
+}
+
+/* ================= АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ ================= */
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: 1fr;  /* ОДНА КОЛОНКА НА УЗКИХ ЭКРАНАХ */
+    }
+    
+    table {
+        font-size: 0.8rem;           /* МЕНЬШЕ ШРИФТ В ТАБЛИЦАХ */
+    }
+    
+    td, th {
+        padding: 8px 5px;            /* МЕНЬШЕ ОТСТУПЫ */
+    }
+}
+
+/* ================= ФИКСЫ ДЛЯ ЧИСЛОВЫХ ПОЛЕЙ ================= */
+/* СКРЫВАЕМ СПИННЕРЫ (СТРЕЛОЧКИ) У ПОЛЕЙ ВВОДА ЧИСЕЛ */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ДЛЯ FIREFOX */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* СТИЛЬ ДЛЯ ОШИБОЧНОГО ВВОДА (ОТРИЦАТЕЛЬНЫЕ ЧИСЛА) */
+input.error-input {
+    border-color: var(--error-color) !important;
+    box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2) !important;
+}
+
+/* АНИМАЦИЯ ТРЯСКИ ДЛЯ ОШИБОК */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+input.error-input {
+    animation: shake 0.5s ease;
+}
+
+/* ================= КАСТОМНЫЕ СЕЛЕКТЫ (ВЫПАДАЮЩИЕ СПИСКИ) ================= */
+select {
+    appearance: none;                 /* УБИРАЕМ СТАНДАРТНЫЙ ВИД */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 30px;             /* МЕСТО ДЛЯ СТРЕЛОЧКИ */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff9800'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+}
